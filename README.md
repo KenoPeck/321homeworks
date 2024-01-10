@@ -1,5 +1,6 @@
 # CptS321-HWs
-
+Cornelius Peck
+11780145
 
 
 ## Getting started
