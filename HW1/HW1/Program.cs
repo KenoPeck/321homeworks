@@ -13,6 +13,7 @@ namespace HW1
                 Console.WriteLine("Enter a unique list of numbers between 0-100 separated by spaces");
                 Console.WriteLine("Or enter q to quit:");
                 string? userInput = Console.ReadLine(); // reading user input
+                Console.WriteLine();
                 if (userInput == "q") // checking if user wants to quit
                 {
                     break;
@@ -27,7 +28,7 @@ namespace HW1
                     }
                 }
                 tree.InOrderTraversal(); // displaying tree in sorted order
-                tree.Count(); // displaying number of nodes in tree
+                Console.WriteLine($"Tree has {tree.Count()} nodes"); // displaying number of nodes in tree
                 tree.Levels(); // displaying number of levels in tree
                 tree.MinLevels(); // displaying theoretical minimum number of levels tree could have
                 Console.WriteLine("\n");

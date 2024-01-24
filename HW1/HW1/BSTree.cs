@@ -9,14 +9,10 @@ namespace HW1_BSTree
         public BSTree()
         {
             root = null!; // setting root to null
-            count = 0; // setting initial count to 0
         }
 
         // ROOT OF TREE
         private BSTNode? root;
-
-        // NUMBER OF NODES IN TREE
-        private int count;
 
         // NODE INSERTION METHOD
         public void Insert(int numInput)
@@ -24,7 +20,6 @@ namespace HW1_BSTree
             if (root == null) // checking if tree is empty
             {
                 root = new BSTNode(numInput); // creating root node
-                count += 1; // adding root node to count
             }
             else
             {
@@ -45,7 +40,6 @@ namespace HW1_BSTree
                 if (iRoot.Left == null)
                 {
                     iRoot.Left = new BSTNode(numInput); // setting left child to input number
-                    count += 1; // incrementing count
                 }
                 else
                 {
@@ -57,7 +51,6 @@ namespace HW1_BSTree
                 if (iRoot.Right == null)
                 {
                     iRoot.Right = new BSTNode(numInput); // setting right child to input number
-                    count += 1; // incrementing count
                 }
                 else
                 {
@@ -94,9 +87,34 @@ namespace HW1_BSTree
         }
 
         // NODE COUNT METHOD
-        public void Count()
+        public int Count()
         {
-            Console.WriteLine($"Tree contains {count} nodes"); // node count is tracked at successful insertions
+            if (root == null) // checking if tree is empty
+            {
+                return 0;
+            }
+            else
+            {
+                int count = CountHelper(root); // calling private helper method
+                return count + 1; // adding root to count
+            }
+        }
+
+        // PRIVATE HELPER METHOD FOR LEVEL COUNT
+        private int CountHelper(BSTNode? cRoot)
+        {
+            int count = 0;
+            if (cRoot.Left != null) // checking if left child exists
+            {
+                count += 1; // incrementing count
+                count += CountHelper(cRoot.Left); // recursively calling self on left child and incrementing count by result
+            }
+            if (cRoot.Right != null)
+            {
+                count += 1; // incrementing count
+                count += CountHelper(cRoot.Right); // recursively calling self on right child and incrementing count by result
+            }
+            return count;
         }
 
         // LEVEL COUNT METHOD
@@ -132,7 +150,7 @@ namespace HW1_BSTree
         // THEORETICAL MINIMUM LEVEL COUNT METHOD
         public void MinLevels()
         {
-            int minLevels = (int)Math.Ceiling(Math.Log2(count)); // taking second log of count and rounding up, then explicitly casting to int
+            int minLevels = (int)Math.Ceiling(Math.Log2(Count()+1)); // taking second log of count + 1 and rounding up, then explicitly casting to int
             Console.WriteLine($"Theoretical minimum number of levels is {minLevels}");
         }
     }
