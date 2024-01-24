@@ -92,5 +92,48 @@ namespace HW1_BSTree
                 InOrderTraversalHelper(iRoot.Right); // recursively calling self on right child
             }
         }
+
+        // NODE COUNT METHOD
+        public void Count()
+        {
+            Console.WriteLine($"Tree contains {count} nodes"); // node count is tracked at successful insertions
+        }
+
+        // LEVEL COUNT METHOD
+        public void Levels()
+        {
+            if (root == null) // checking if tree is empty
+            {
+                Console.WriteLine("Tree has 0 levels");
+            }
+            else
+            {
+                int levels = LevelsHelper(root, 1); // calling private helper method
+                Console.WriteLine($"Tree has {levels} levels");
+            }
+        }
+
+        // PRIVATE HELPER METHOD FOR LEVEL COUNT
+        private int LevelsHelper(BSTNode? iRoot, int numLevels)
+        {
+            int lMax = numLevels; int rMax = numLevels;
+            if (iRoot.Left != null) // checking if left child exists
+            {
+                lMax = LevelsHelper(iRoot.Left, (numLevels + 1)); // recursively calling self on left child and incrementing numLevels
+            }
+            if (iRoot.Right != null) // checking if right child exists
+            {
+                rMax = LevelsHelper(iRoot.Right, (numLevels + 1)); // recursively calling self on right child and incrementing numLevels
+            }
+            return Math.Max(lMax, rMax); // returning max of left and right child level values
+        }
+
+
+        // THEORETICAL MINIMUM LEVEL COUNT METHOD
+        public void MinLevels()
+        {
+            int minLevels = (int)Math.Ceiling(Math.Log2(count)); // taking second log of count and rounding up, then explicitly casting to int
+            Console.WriteLine($"Theoretical minimum number of levels is {minLevels}");
+        }
     }
 }
