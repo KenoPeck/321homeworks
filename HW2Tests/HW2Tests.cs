@@ -30,5 +30,11 @@ namespace HW2.Tests
         {
             Assert.That(FixedStorageMethod.Method2(HW2Form.numList), Is.EqualTo(HW2Form.numList.Distinct<int>().Count()));
         }
+
+        /// confirms that Sorted method returns correct number of distinct integers
+        public void TestSortedMethod()
+        {
+            Assert.That(SortedMethod.Method3(HW2Form.numList), Is.EqualTo(HW2Form.numList.Distinct<int>().Count()));
+        }
     }
 }
