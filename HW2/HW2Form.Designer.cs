@@ -1,6 +1,6 @@
-﻿namespace HW2
+﻿namespace HW2.Forms
 {
-    partial class Form1
+    partial class HW2Form
     {
         /// <summary>
         ///  Required designer variable.
@@ -28,12 +28,32 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "Form1";
+            outputBox = new TextBox();
+            SuspendLayout();
+            // 
+            // outputBox
+            // 
+            outputBox.Dock = DockStyle.Fill;
+            outputBox.Location = new Point(0, 0);
+            outputBox.Multiline = true;
+            outputBox.Name = "outputBox";
+            outputBox.Size = new Size(800, 450);
+            outputBox.TabIndex = 0;
+            // 
+            // HW2Form
+            // 
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(800, 450);
+            Controls.Add(outputBox);
+            Name = "HW2Form";
+            Text = "Cornelius Peck - 11780145";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
+
+        private TextBox outputBox;
     }
 }
