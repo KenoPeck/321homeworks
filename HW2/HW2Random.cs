@@ -8,6 +8,11 @@ namespace HW2.Methods
 {
     internal class HW2Random
     {
+        /// <summary>
+        /// Adds random integers to numList
+        /// </summary>
+        /// <param name="numList"> HW2's numList </param>
+        /// <returns> list of 10000 random integers from 0-20000 </returns>
         internal static List<int> fillList(List<int> numList)
         {
             var rand = new Random(); // instantiating random class

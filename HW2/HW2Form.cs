@@ -7,7 +7,13 @@ namespace HW2.Forms
 {
     public partial class HW2Form : Form
     {
+        /// <summary>
+        /// string used for output in winform text box
+        /// </summary>
         internal static string? outputString;
+        /// <summary>
+        /// integer list used for storing random integers from 0-20000
+        /// </summary>
         public static List<int> numList;
 
         // CONSTRUCTOR
@@ -24,8 +30,9 @@ namespace HW2.Forms
         }
 
 
-        // RUNDISTINCTINTEGERS METHOD
-        // RUNS 3 METHODS TO COUNT DISTINCT INTEGERS AND PUTS RESULTS IN OUTPUTSTRING
+        /// <summary>
+        /// Determines number of distinct integers in numList using 3 different methods
+        /// </summary>
         private static void RunDistinctIntegers()
         {
             // OUTPUT: -------------------------------------------------------------------------------------------------------

@@ -10,17 +10,23 @@ namespace HW2.Tests
         [SetUp]
         public void Setup()
         {
-            HW2Form hW2Form = new HW2Form();
+            HW2Form hW2Form = new HW2Form(); // instantiating HW2Form
         }
 
         [Test]
-        public void TestMethod1()
+
+        
+        
+        /// confirms that hash method returns correct number of distinct integers
+        public void TestHashMethod()
         {
             Assert.That(HashMethod.Method1(HW2Form.numList), Is.EqualTo(HW2Form.numList.Distinct<int>().Count()));
         }
 
         [Test]
-        public void TestMethod2()
+        
+        /// confirms that fixed storage method returns correct number of distinct integers
+        public void TestFixedStorageMethod()
         {
             Assert.That(FixedStorageMethod.Method2(HW2Form.numList), Is.EqualTo(HW2Form.numList.Distinct<int>().Count()));
         }
