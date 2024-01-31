@@ -18,5 +18,11 @@ namespace HW2.Tests
         {
             Assert.That(HashMethod.Method1(HW2Form.numList), Is.EqualTo(HW2Form.numList.Distinct<int>().Count()));
         }
+
+        [Test]
+        public void TestMethod2()
+        {
+            Assert.That(FixedStorageMethod.Method2(HW2Form.numList), Is.EqualTo(HW2Form.numList.Distinct<int>().Count()));
+        }
     }
 }
