@@ -22,7 +22,7 @@ namespace HW2.Forms
             InitializeComponent();
 
             numList = new List<int>(); // creating empty list
-            HW2Random.fillList(numList); // filling list with random integers
+            HW2Random.FillList(numList); // filling list with random integers
 
             RunDistinctIntegers();
             outputString = outputString.Replace("\n", Environment.NewLine); // converting newlines for winform textbox
@@ -40,7 +40,7 @@ namespace HW2.Forms
                            + $"    HASHSET METHOD TIME COMPLEXITY: O(n)\n"
                            + "    Reasoning: C# List has O(1) access, and C# HashSet has O(1) access, so the conversion between list to hashset is O(n),\n    and then the hashset count property is also O(1), making the full method O(n)\n"
                            + $"2. O(1) STORAGE METHOD: {FixedStorageMethod.Method2(numList)} unique numbers\n"
-                           + $"3. SORTED METHOD: {0} unique numbers";
+                           + $"3. SORTED METHOD: {SortedMethod.Method3(numList)} unique numbers";
 
         }
 

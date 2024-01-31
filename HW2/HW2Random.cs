@@ -13,7 +13,7 @@ namespace HW2.Methods
         /// </summary>
         /// <param name="numList"> HW2's numList </param>
         /// <returns> list of 10000 random integers from 0-20000 </returns>
-        internal static List<int> fillList(List<int> numList)
+        internal static List<int> FillList(List<int> numList)
         {
             var rand = new Random(); // instantiating random class
             for (int i = 0; i < 10000; i++)
