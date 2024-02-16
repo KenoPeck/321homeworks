@@ -34,11 +34,9 @@
             loadFromFileToolStripMenuItem = new ToolStripMenuItem();
             loadFibonacciNumbersFirst50ToolStripMenuItem = new ToolStripMenuItem();
             loadFibonacciNumbersFirst100ToolStripMenuItem = new ToolStripMenuItem();
-            openFileDialog1 = new OpenFileDialog();
-            openFileDialog1.InitialDirectory = Application.ExecutablePath;
-            saveFileDialog1 = new SaveFileDialog();
-            saveFileDialog1.InitialDirectory = Application.ExecutablePath;
             saveToFileToolStripMenuItem = new ToolStripMenuItem();
+            openFileDialog1 = new OpenFileDialog();
+            saveFileDialog1 = new SaveFileDialog();
             menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
@@ -90,21 +88,24 @@
             loadFibonacciNumbersFirst100ToolStripMenuItem.Text = "Load Fibonacci Numbers (First 100)";
             loadFibonacciNumbersFirst100ToolStripMenuItem.Click += loadFibonacciNumbersFirst100ToolStripMenuItem_Click;
             // 
-            // openFileDialog1
-            // 
-            openFileDialog1.FileName = "openFileDialog1";
-            // 
-            // saveFileDialog1
-            // 
-            saveFileDialog1.Title = "Save To File";
-            saveFileDialog1.FileOk += saveFileDialog1_FileOk;
-            // 
             // saveToFileToolStripMenuItem
             // 
             saveToFileToolStripMenuItem.Name = "saveToFileToolStripMenuItem";
             saveToFileToolStripMenuItem.Size = new Size(325, 26);
             saveToFileToolStripMenuItem.Text = "Save to file...";
             saveToFileToolStripMenuItem.Click += saveToFileToolStripMenuItem_Click;
+            // 
+            // openFileDialog1
+            // 
+            openFileDialog1.FileName = "openFileDialog1";
+            openFileDialog1.InitialDirectory = "C:\\Users\\kenop\\AppData\\Local\\Microsoft\\VisualStudio\\17.0_cf04925b\\WinFormsDesigner\\1xtqppnh.gcg\\DesignToolsServer.exe";
+            // 
+            // saveFileDialog1
+            // 
+            saveFileDialog1.InitialDirectory = "C:\\Users\\kenop\\AppData\\Local\\Microsoft\\VisualStudio\\17.0_cf04925b\\WinFormsDesigner\\1xtqppnh.gcg\\DesignToolsServer.exe";
+            saveFileDialog1.OverwritePrompt = false;
+            saveFileDialog1.Title = "Save To File";
+            saveFileDialog1.FileOk += saveFileDialog1_FileOk;
             // 
             // HW3Form
             // 
