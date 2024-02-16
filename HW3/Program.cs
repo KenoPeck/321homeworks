@@ -1,4 +1,4 @@
-namespace HW2.Forms
+namespace HW3
 {
     internal static class Program
     {
@@ -11,7 +11,7 @@ namespace HW2.Forms
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new HW2Form());
+            Application.Run(new HW3Form());
         }
     }
 }
