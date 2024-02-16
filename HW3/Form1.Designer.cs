@@ -35,7 +35,9 @@
             loadFibonacciNumbersFirst50ToolStripMenuItem = new ToolStripMenuItem();
             loadFibonacciNumbersFirst100ToolStripMenuItem = new ToolStripMenuItem();
             openFileDialog1 = new OpenFileDialog();
+            openFileDialog1.InitialDirectory = Application.ExecutablePath;
             saveFileDialog1 = new SaveFileDialog();
+            saveFileDialog1.InitialDirectory = Application.ExecutablePath;
             saveToFileToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             SuspendLayout();
