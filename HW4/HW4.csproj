@@ -9,13 +9,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="testfile.txt" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="testfile.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <ProjectReference Include="..\SpreadsheetEngine\SpreadsheetEngine.csproj" />
   </ItemGroup>
 
 </Project>
