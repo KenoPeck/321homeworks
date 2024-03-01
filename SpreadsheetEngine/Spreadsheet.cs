@@ -1,17 +1,31 @@
-﻿namespace SpreadsheetEngine
+﻿//-----------------------------------------------------------------------
+// Spreadsheet.cs
+// contains implementation of spreadsheet class.
+// <author>Cornelius Peck</author>
+//-----------------------------------------------------------------------
+
+namespace SpreadsheetEngine
 {
     using System;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Text;
 
+    /// <summary>
+    /// Spreadsheet class for managing cells, inherits abstract cell class.
+    /// </summary>
     public class Spreadsheet : Cell
     {
         private Cell[,] cells;
         private int rowCount;
         private int colCount;
 
-        public Spreadsheet(int numRows, int numCols) 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
+        /// </summary>
+        /// <param name="numRows"> number of rows for spreadsheet.</param>
+        /// <param name="numCols"> number of columns for spreadsheet.</param>
+        public Spreadsheet(int numRows, int numCols)
             : base(0, 0)
         {
             this.rowCount = numRows;
@@ -21,13 +35,21 @@
             {
                 for (int j = 0; j < numCols; j++)
                 {
-                    cells[i, j] = CreateCell(i, j);
+                    this.cells[i, j] = this.CreateCell(i, j);
                 }
             }
         }
 
+        /// <summary>
+        /// Event handler for updating UI/spreadsheet when any cell property is changed.
+        /// </summary>
+        #pragma warning disable SA1130
         public event PropertyChangedEventHandler CellPropertyChanged = delegate { };
+        #pragma warning restore SA1130
 
+        /// <summary>
+        /// Gets number of columns in spreadsheet.
+        /// </summary>
         public int ColumnCount
         {
             get
@@ -36,6 +58,9 @@
             }
         }
 
+        /// <summary>
+        /// Gets number of rows in spreadsheet.
+        /// </summary>
         public int RowCount
         {
             get
@@ -44,33 +69,44 @@
             }
         }
 
+        /// <summary>
+        /// Gets spreadsheet cell at specified row and column.
+        /// </summary>
+        /// <param name="row"> row index of target cell.</param>
+        /// <param name="col"> column index of target cell.</param>
+        /// <returns> cell at specified row and column.</returns>
+        public Cell GetCell(int row, int col)
+        {
+            return this.cells[row, col];
+        }
+
+        /// <summary>
+        /// Internal function for creating new concrete cell.
+        /// </summary>
+        /// <param name="row"> row index for new cell.</param>
+        /// <param name="col"> column index for new cell.</param>
+        /// <returns> new cell at specified row and column indexes.</returns>
         internal Cell CreateCell(int row, int col)
         {
             Cell newCell = new ConcreteCell(row, col);
-            newCell.PropertyChanged += Cell_PropertyChanged;
+            #pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+            newCell.PropertyChanged += this.Cell_PropertyChanged;
+            #pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
             return newCell;
         }
 
         private void Cell_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            this.CellPropertyChanged(this, e);
-            if (e.PropertyName == "Text")
+            if (e.PropertyName == "Value")
             {
                 ConcreteCell cell = (ConcreteCell)sender;
-                if (cell.Text[0] != '=')
-                {
-                    cell.UpdateValue(cell.Text);
-                }
-                else
-                {
-                    return;
-                }
+                string source = cell.Text.Substring(1);
+                int columnIndex = source[0] - 'A';
+                int rowIndex = int.Parse(source.Substring(1)) - 1;
+                cell.UpdateValue(this.cells[rowIndex, columnIndex].Text);
             }
-        }
 
-        public Cell GetCell(int row, int col)
-        {
-            return cells[row, col];
+            this.CellPropertyChanged(sender, e);
         }
     }
 }
