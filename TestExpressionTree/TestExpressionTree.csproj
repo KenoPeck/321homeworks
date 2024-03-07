@@ -1,8 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <RootNamespace>Spreadsheet_Tests</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -23,7 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HW4\HW4.csproj" />
+    <ProjectReference Include="..\ExpressionTree\ExpressionTree.csproj" />
+    <ProjectReference Include="..\HW5\HW5.csproj" />
   </ItemGroup>
 
 </Project>
