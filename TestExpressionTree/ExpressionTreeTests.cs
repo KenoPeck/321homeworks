@@ -8,7 +8,6 @@
 namespace ExpressionTree.Tests
 {
     using System.Globalization;
-    using System.Linq.Expressions;
 
     [TestFixture]
     public class ExpressionTreeTests
@@ -19,6 +18,11 @@ namespace ExpressionTree.Tests
         [TestCase("11*22", ExpectedResult = 242.0)] // multiplication expression
         [TestCase("22/11", ExpectedResult = 2.0)] // division expression
         [TestCase("1/0", ExpectedResult = double.PositiveInfinity)] // division by zero
+
+        /// <summary>
+        /// Test expressions with normal cases.
+        /// </summary>
+        /// <param name="expression">expression used in test.</param>
         public double TestEvaluateNormalCases(string expression)
         {
             ExpressionTree exp = new ExpressionTree(expression);
@@ -27,11 +31,15 @@ namespace ExpressionTree.Tests
 
         // TODO: Refactor to something more descriptive such as UnsupportedOperatorException
 
+        /// <summary>
+        /// Test expressions with values totaling above maxvalue.
+        /// </summary>
+        /// <param name="expression">expression used in test.</param>
         [TestCase("2^3")]
         public void TestEvaluateUnsupportedOperator(string expression)
         {
             ExpressionTree exp = new ExpressionTree(expression);
-            Assert.That(() => exp.Evaluate(), Throws.TypeOf<System.Collections.Generic.KeyNotFoundException>());
+            Assert.That(() => exp.Evaluate(), Throws.TypeOf<UnsupportedOperatorException>());
         }
 
         [Test]

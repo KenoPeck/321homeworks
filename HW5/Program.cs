@@ -57,7 +57,7 @@ namespace ExpressionTree.Program
                         }
                         else if (variableValue == null || variableValue == string.Empty)
                         {
-                            expressionTree.Variables.Add(variableName, 0); // default variable value of 0 if empty.
+                            expressionTree.SetVariable(variableName, 0); // default variable value of 0 if empty.
                             break;
                         }
                         else
@@ -65,7 +65,7 @@ namespace ExpressionTree.Program
                             try
                             {
                                 double double_val = double.Parse(variableValue); // parse variable value to double.
-                                expressionTree.Variables.Add(variableName, double_val); // add variable to variables dictionary.
+                                expressionTree.SetVariable(variableName, double_val); // add variable to variables dictionary.
                                 break;
                             }
                             catch (FormatException) // catch exception if variable value is not a valid double.

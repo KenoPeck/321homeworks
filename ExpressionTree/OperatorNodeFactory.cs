@@ -23,7 +23,19 @@ namespace ExpressionTree
         /// <returns>new OperatorNode.</returns>
         public OperatorNode CreateOperatorNode(char op)
         {
-            throw new System.NotImplementedException();
+            switch (op)
+            {
+                case '+': // addition
+                    return new AdditionNode(op);
+                case '-': // subtraction
+                    return new SubtractionNode(op);
+                case '*': // multiplication
+                    return new MultiplicationNode(op);
+                case '/': // division
+                    return new DivisionNode(op);
+                default:
+                    throw new UnsupportedOperatorException("Invalid operator");
+            }
         }
     }
 }

@@ -10,6 +10,11 @@ namespace ExpressionTree
     public class ExpressionTree
     {
         /// <summary>
+        /// Operator node factory for creating operator nodes.
+        /// </summary>
+        private OperatorNodeFactory operatorNodeFactory = new OperatorNodeFactory();
+
+        /// <summary>
         /// Expression from which tree will be generated.
         /// </summary>
         private string expression;
@@ -26,13 +31,8 @@ namespace ExpressionTree
         public ExpressionTree(string expression)
         {
             this.expression = expression;
-            throw new System.NotImplementedException();
-        }
 
-        /// <summary>
-        /// Gets or sets the variables dictionary.
-        /// </summary>
-        public Dictionary<string, double> Variables { get => this.variables; set => this.variables = value; }
+        }
 
         /// <summary>
         /// Sets specified variable in variables dictionary.
@@ -41,7 +41,7 @@ namespace ExpressionTree
         /// <param name="variableValue"> Value of Variable.</param>
         public void SetVariable(string variableName, double variableValue)
         {
-            throw new System.NotImplementedException();
+            this.variables[variableName] = variableValue;
         }
 
         /// <summary>
