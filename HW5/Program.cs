@@ -2,8 +2,10 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-namespace ExpressionTree.Program
+namespace ConsoleApp
 {
+    using ExpressionTree;
+
     /// <summary>
     /// Console app Program class.
     /// </summary>
@@ -18,15 +20,14 @@ namespace ExpressionTree.Program
             string? variableName; // string to store variable name input.
             string? variableValue; // string to store variable value input.
             string? userInput; // string to store user input.
-            ExpressionTree expressionTree = new ExpressionTree("A1+B1+C1"); // expression tree object for storing actual expression.
-
+            ExpressionTree expressionTree = new ExpressionTree("A1 + B1 + C1"); // expression tree object for storing actual expression.
             while (true) // loop for accepting user input and displaying result.
             {
                 Console.WriteLine($"Menu (Current Expression = \"{expression}\")");
                 Console.WriteLine("     1 = Enter a new Expression");
                 Console.WriteLine("     2 = Set Variable");
                 Console.WriteLine("     3 = Evaluate Tree");
-                Console.WriteLine("     4 = Quit\n");
+                Console.WriteLine("     4 = Quit");
                 userInput = Console.ReadLine(); // get user input.
 
                 switch (userInput)
@@ -41,8 +42,16 @@ namespace ExpressionTree.Program
                         }
                         else
                         {
-                            expressionTree = new ExpressionTree(expression); // create new expression tree object for new expression.
-                            break;
+                            try
+                            {
+                                expressionTree = new ExpressionTree(expression); // create new expression tree object for new expression.
+                                break;
+                            }
+                            catch (UnsupportedOperatorException)
+                            {
+                                Console.WriteLine("Unsupported Operator!");
+                                break;
+                            }
                         }
 
                     case "2": // case for setting variable.
@@ -77,7 +86,7 @@ namespace ExpressionTree.Program
 
                     case "3": // case for evaluating expression.
                         Console.Write("Result: ");
-                        Console.WriteLine(expressionTree.Evaluate()); // display result of expression.
+                        Console.WriteLine(expressionTree.Evaluate().ToString("0.###")); // display result of expression.
                         break;
                     case "4": // case for quitting the program.
                         return;

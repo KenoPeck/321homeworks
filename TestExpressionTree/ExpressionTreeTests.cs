@@ -2,8 +2,8 @@
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
-// Tests have documentation above each test set
-#pragma warning disable SA1600 // Elements should be documented
+// Tests have documentation above each test set which weren't being detected by stylecop
+//#pragma warning disable SA1600 // Elements should be documented
 
 namespace ExpressionTree.Tests
 {
@@ -38,8 +38,7 @@ namespace ExpressionTree.Tests
         [TestCase("2^3")]
         public void TestEvaluateUnsupportedOperator(string expression)
         {
-            ExpressionTree exp = new ExpressionTree(expression);
-            Assert.That(() => exp.Evaluate(), Throws.TypeOf<UnsupportedOperatorException>());
+            Assert.That(() => new ExpressionTree(expression), Throws.TypeOf<UnsupportedOperatorException>());
         }
 
         [Test]
@@ -55,7 +54,6 @@ namespace ExpressionTree.Tests
         }
 
         [Test]
-
         /// <summary>
         /// Test expressions with variable values.
         /// </summary>
@@ -72,4 +70,4 @@ namespace ExpressionTree.Tests
         }
     }
 }
-#pragma warning restore SA1600 // Elements should be documented
+//#pragma warning restore SA1600 // Elements should be documented
