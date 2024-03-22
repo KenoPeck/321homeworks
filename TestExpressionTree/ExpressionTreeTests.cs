@@ -8,6 +8,7 @@
 namespace ExpressionTree.Tests
 {
     using System.Globalization;
+    using System.Linq.Expressions;
 
     [TestFixture]
     public class ExpressionTreeTests
@@ -26,6 +27,7 @@ namespace ExpressionTree.Tests
         [TestCase("A-B+C", ExpectedResult = "A B C + - ")] // Pure Variable subtraction and addition expression
         [TestCase("A*B+C", ExpectedResult = "A B * C + ")] // Pure Variable multiplication and addition expression
         [TestCase("A*(B+C)", ExpectedResult = "A B C + * ")] // Pure Variable multiplication and addition expression with parentheses
+        [TestCase("A* (B + C* D) + E", ExpectedResult = "A B C D * + * E + ")] // mixed expression with parentheses
 
         /// <summary>
         /// Test postfix expression generation.
@@ -42,6 +44,9 @@ namespace ExpressionTree.Tests
         [TestCase("22-11", ExpectedResult = 11.0)] // subtraction expression
         [TestCase("11*22", ExpectedResult = 242.0)] // multiplication expression
         [TestCase("22/11", ExpectedResult = 2.0)] // division expression
+        [TestCase("5/2", ExpectedResult = 2.5)] // division expression
+        [TestCase("5-22/11", ExpectedResult = 3.0)] // mixed (-,/) expression
+        [TestCase("(10-6/2)/2", ExpectedResult = 3.5)] // mixed (-,/) expression with parentheses
         [TestCase("1/0", ExpectedResult = double.PositiveInfinity)] // division by zero
 
         /// <summary>
@@ -53,8 +58,6 @@ namespace ExpressionTree.Tests
             ExpressionTree exp = new ExpressionTree(expression);
             return exp.Evaluate();
         }
-
-        // TODO: Refactor to something more descriptive such as UnsupportedOperatorException
 
         /// <summary>
         /// Test expressions with values totaling above maxvalue.
@@ -80,18 +83,50 @@ namespace ExpressionTree.Tests
 
         [Test]
         /// <summary>
-        /// Test expressions with variable values.
+        /// Test expression with variable value.
         /// </summary>
-        public void TestExpressionsWithVariableValues()
+        public void TestExpressionWithVariableValue()
         {
             ExpressionTree expression = new ExpressionTree("B1+7");
             expression.SetVariable("B1", 23.0);
             Assert.That(expression.Evaluate(), Is.EqualTo(30.0));
+        }
 
-            expression = new ExpressionTree("B2+A1+3");
+        [Test]
+        /// <summary>
+        /// Test Addition expression with 2 variable values.
+        /// </summary>
+        public void TestAdditionWith2VariableValues()
+        {
+            ExpressionTree expression = new ExpressionTree("B2+A1+3");
             expression.SetVariable("A1", 9);
             expression.SetVariable("B2", 1);
             Assert.That(expression.Evaluate(), Is.EqualTo(13));
+        }
+
+        [Test]
+        /// <summary>
+        /// Test Addition expression with 2 variable values.
+        /// </summary>
+        public void TestMixedWith2VariableValues()
+        {
+            ExpressionTree expression = new ExpressionTree("(B2+5)*A1+3");
+            expression.SetVariable("A1", 1);
+            expression.SetVariable("B2", 2);
+            Assert.That(expression.Evaluate(), Is.EqualTo(10));
+        }
+
+        [Test]
+        /// <summary>
+        /// Test Addition expression with 2 variable values.
+        /// </summary>
+        public void TestExpressionWith3VariableValues()
+        {
+            ExpressionTree expression = new ExpressionTree("(A1+B2)/CD55");
+            expression.SetVariable("A1", 11.5);
+            expression.SetVariable("B2", 9.5);
+            expression.SetVariable("CD55", 2);
+            Assert.That(expression.Evaluate(), Is.EqualTo(10.5));
         }
     }
 }

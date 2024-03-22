@@ -92,7 +92,7 @@ namespace ExpressionTree
                 }
                 else
                 {
-                    throw new Exception("Operator Has No Precedence Method");
+                    throw new Exception("Operator Has No Precedence Property");
                 }
             }
             else
@@ -131,7 +131,7 @@ namespace ExpressionTree
                 }
                 else
                 {
-                    throw new Exception("Operator Has No Associativity Method");
+                    throw new Exception("Operator Has No Associativity Property");
                 }
             }
             else

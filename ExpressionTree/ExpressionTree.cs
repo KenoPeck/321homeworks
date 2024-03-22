@@ -43,7 +43,6 @@ namespace ExpressionTree
         /// <param name="expression"> Expression from which tree will be generated.</param>
         public ExpressionTree(string expression)
         {
-            OperatorNode? current = this.root; // current node for tree generation.
             for (int i = 0; i < expression.Length; i++)
             {
                 while (i < expression.Length && char.IsWhiteSpace(expression[i])) // skipping whitespace
@@ -121,6 +120,10 @@ namespace ExpressionTree
                         this.treeStack.Push(expression[i]); // push operator to stack
                     }
                 }
+                else
+                {
+                    throw new UnsupportedOperatorException($"\n{expression[i]} is not a supported operator!\n");
+                }
             }
 
             while (this.treeStack.Count > 0) // while stack is not empty
@@ -131,6 +134,84 @@ namespace ExpressionTree
                 }
 
                 this.postfixExp.Append(this.treeStack.Pop() + " "); // add all operators on stack to postfix expression
+            }
+
+            string postfix = this.postfixExp.ToString();
+            Stack<OperatorNode> nodeStack = new Stack<OperatorNode>();
+
+            for (int i = 0; i < postfix.Length; i++)
+            {
+                if (char.IsWhiteSpace(postfix[i])) // skip whitespace
+                {
+                    continue;
+                }
+                else if (factory.IsOperator(postfix[i]) == true) // if character is an operator
+                {
+                    if (nodeStack.Count > 1)
+                    {
+                        OperatorNode temp = factory.CreateOperatorNode(postfix[i]);
+                        temp.Right = nodeStack.Pop();
+                        temp.Left = nodeStack.Pop();
+                        nodeStack.Push(temp);
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid Expression!");
+                    }
+                }
+                else if (char.IsLetter(postfix[i])) // if character is beginning of a variable
+                {
+                    StringBuilder elementName = new StringBuilder();
+                    while (i < postfix.Length && char.IsLetter(postfix[i]))
+                    {
+                        elementName.Append(postfix[i]);
+                        i++;
+                    }
+
+                    if (i < postfix.Length && char.IsNumber(postfix[i]))
+                    {
+                        while (i < postfix.Length && char.IsNumber(postfix[i]))
+                        {
+                            elementName.Append(postfix[i]);
+                            i++;
+                        }
+                    }
+
+                    i--;
+                    this.variables[elementName.ToString()] = 0;
+                    OperatorNode temp = factory.CreateOperatorNode('+');
+                    temp.Left = new VariableNode(elementName.ToString(), 0);
+                    temp.Right = new ConstantNode(0);
+                    nodeStack.Push(temp);
+                }
+                else if (char.IsNumber(postfix[i])) // if character is beginning of a constant
+                {
+                    StringBuilder constant = new StringBuilder();
+                    while (i < postfix.Length && (char.IsNumber(postfix[i]) || postfix[i] == '.'))
+                    {
+                        constant.Append(postfix[i]);
+                        i++;
+                    }
+
+                    i--;
+                    OperatorNode temp = factory.CreateOperatorNode('+');
+                    temp.Left = new ConstantNode(double.Parse(constant.ToString()));
+                    temp.Right = new ConstantNode(0);
+                    nodeStack.Push(temp);
+                }
+                else // if character is not a valid character
+                {
+                    throw new Exception("Invalid Expression!");
+                }
+            }
+
+            if (nodeStack.Count > 1 || nodeStack.Count == 0) // if stack is empty or contains more than one node
+            {
+                throw new Exception("Invalid Expression!");
+            }
+            else
+            {
+                this.root = nodeStack.Pop(); // set root of tree
             }
         }
 
