@@ -4,11 +4,16 @@
 
 namespace ExpressionTree
 {
+
     /// <summary>
     /// Division node class.
     /// </summary>
     internal class DivisionNode : OperatorNode
     {
+        private static AssociativityVals associativity = AssociativityVals.L;
+
+        private static int precedence = 2;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DivisionNode"/> class.
         /// </summary>
@@ -16,8 +21,6 @@ namespace ExpressionTree
         public DivisionNode(char c)
             : base(c)
         {
-            this.Associativity = AssociativityVals.L;
-            this.Precedence = 2;
         }
 
         /// <summary>

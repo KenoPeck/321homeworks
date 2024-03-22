@@ -9,6 +9,10 @@ namespace ExpressionTree
     /// </summary>
     internal class MultiplicationNode : OperatorNode
     {
+        private static AssociativityVals associativity = AssociativityVals.L;
+
+        private static int precedence = 3;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiplicationNode"/> class.
         /// </summary>
@@ -16,8 +20,6 @@ namespace ExpressionTree
         public MultiplicationNode(char c)
             : base(c)
         {
-            this.Associativity = AssociativityVals.L;
-            this.Precedence = 3;
         }
 
         /// <summary>

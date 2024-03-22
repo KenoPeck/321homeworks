@@ -12,12 +12,12 @@ namespace ExpressionTree
         /// <summary>
         /// associativity enum value of operator.
         /// </summary>
-        private AssociativityVals associativity;
+        private static AssociativityVals associativity;
 
         /// <summary>
         /// precedence value of operator.
         /// </summary>
-        private int precedence;
+        private static int precedence;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperatorNode"/> class.
@@ -63,11 +63,19 @@ namespace ExpressionTree
         /// <summary>
         /// Gets or sets the precedence int value.
         /// </summary>
-        protected int Precedence { get => this.precedence; set => this.precedence = value; }
+        /// <returns>node precedence int value.</returns>
+        public static int GetPrecedence()
+        {
+            return precedence;
+        }
 
         /// <summary>
         /// Gets or sets the associativity enum value.
         /// </summary>
-        protected AssociativityVals Associativity { get => this.associativity; set => this.associativity = value; }
+        /// <returns>node asssociativity enum value.</returns>
+        public static AssociativityVals GetAssociativity()
+        {
+            return associativity;
+        }
     }
 }

@@ -3,7 +3,7 @@
 // </copyright>
 
 // Tests have documentation above each test set which weren't being detected by stylecop
-//#pragma warning disable SA1600 // Elements should be documented
+#pragma warning disable SA1600 // Elements should be documented
 
 namespace ExpressionTree.Tests
 {
@@ -12,6 +12,23 @@ namespace ExpressionTree.Tests
     [TestFixture]
     public class ExpressionTreeTests
     {
+        [Test]
+        [TestCase("11+22", ExpectedResult = "11 22 + ")] // addition expression
+        [TestCase("22-11", ExpectedResult = "22 11 - ")] // subtraction expression
+        [TestCase("3+3-3", ExpectedResult = "3 3 + 3 - ")] // addition and substraction mixed expression
+        [TestCase("11*22", ExpectedResult = "11 22 * ")] // multiplication expression
+        [TestCase("22/11", ExpectedResult = "22 11 / ")] // division expression
+
+        /// <summary>
+        /// Test postfix expression generation.
+        /// </summary>
+        /// <param name="expression">expression used in test.</param>
+        public string TestPostFixExpressions(string expression)
+        {
+            ExpressionTree exp = new ExpressionTree(expression);
+            return exp.GetPostFix();
+        }
+
         [Test]
         [TestCase("11+22", ExpectedResult = 33.0)] // addition expression
         [TestCase("22-11", ExpectedResult = 11.0)] // subtraction expression
@@ -70,4 +87,4 @@ namespace ExpressionTree.Tests
         }
     }
 }
-//#pragma warning restore SA1600 // Elements should be documented
+#pragma warning restore SA1600 // Elements should be documented
