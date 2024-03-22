@@ -12,13 +12,24 @@ namespace ExpressionTree
         /// <summary>
         /// Initializes a new instance of the <see cref="AdditionNode"/> class.
         /// </summary>
-        /// <param name="c">operator char value.</param>
-        public AdditionNode(char c)
-            : base(c)
+        public AdditionNode()
         {
-            this.Associativity = AssociativityVals.L;
-            this.Precedence = 1;
         }
+
+        /// <summary>
+        /// gets operator symbol.
+        /// </summary>
+        public static char Operator => '+';
+
+        /// <summary>
+        /// gets operator precedence.
+        /// </summary>
+        public static int Precedence => 1;
+
+        /// <summary>
+        /// gets AssociativityVals Enum of operator.
+        /// </summary>
+        public static AssociativityVals Associativity => AssociativityVals.L;
 
         /// <summary>
         /// Evaluates the addition node.
