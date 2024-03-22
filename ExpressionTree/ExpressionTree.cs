@@ -30,7 +30,7 @@ namespace ExpressionTree
         /// <summary>
         /// StringBuilder for generating/storing postfix expression.
         /// </summary>
-        private StringBuilder postfixExp = new StringBuilder("");
+        private StringBuilder postfixExp = new StringBuilder(string.Empty);
 
         /// <summary>
         /// Dictionary for storing variables and their values.
@@ -43,6 +43,95 @@ namespace ExpressionTree
         /// <param name="expression"> Expression from which tree will be generated.</param>
         public ExpressionTree(string expression)
         {
+            OperatorNode? current = this.root; // current node for tree generation.
+            for (int i = 0; i < expression.Length; i++)
+            {
+                while (i < expression.Length && char.IsWhiteSpace(expression[i])) // skipping whitespace
+                {
+                    i++;
+                }
+
+                if (char.IsLetter(expression[i])) // if character is part of a variable ----------------------------------------------------------------------------------
+                {
+                    StringBuilder variableName = new StringBuilder();
+                    while (i < expression.Length && char.IsLetter(expression[i])) // add all letters in variable name
+                    {
+                        variableName.Append(expression[i]);
+                        i++;
+                    }
+
+                    while (i < expression.Length && char.IsNumber(expression[i])) // add all numbers in variable name
+                    {
+                        variableName.Append(expression[i]);
+                        i++;
+                    }
+
+                    i--; // decrement i to account for increment in for loop
+                    this.postfixExp.Append(variableName.ToString() + " "); // add variable to postfix expression
+                }
+                else if (char.IsNumber(expression[i])) // if character is a constant ----------------------------------------------------------------------------------
+                {
+                    StringBuilder constant = new StringBuilder();
+                    while (i < expression.Length && (char.IsNumber(expression[i]) || expression[i] == '.'))
+                    {
+                        constant.Append(expression[i]);
+                        i++;
+                    }
+
+                    i--; // decrement i to account for increment in for loop
+                    this.postfixExp.Append(constant.ToString() + " "); // add variable to postfix expression
+                }
+                else if (expression[i] == '(') // if character is a left parenthesis ----------------------------------------------------------------------------------
+                {
+                    this.treeStack.Push('('); // push left parenthesis to stack
+                }
+                else if (expression[i] == ')') // if character is a right parenthesis ----------------------------------------------------------------------------------
+                {
+                    while (this.treeStack.Count > 0 && this.treeStack.Peek() != '(') // while top of stack is not left parenthesis
+                    {
+                        this.postfixExp.Append(this.treeStack.Pop() + " "); // pop stack symbols and add to postfix expression
+                    }
+
+                    if (this.treeStack.Count > 0 && this.treeStack.Peek() == '(') // if top of stack is left parenthesis
+                    {
+                        this.treeStack.Pop(); // pop left parenthesis
+                    }
+                    else
+                    {
+                        throw new Exception("Invalid Parentheses!"); // throw exception if parentheses are invalid
+                    }
+                }
+                else if (factory.IsOperator(expression[i])) // if character is an operator ----------------------------------------------------------------------------------
+                {
+                    if (this.treeStack.Count == 0 || this.treeStack.Peek() == '(') // if stack is empty or contains left parenthesis on top
+                    {
+                        this.treeStack.Push(expression[i]); // push operator to stack
+                    }
+                    else if (factory.GetPrecedence(expression[i]) > factory.GetPrecedence(this.treeStack.Peek())) // if operator has higher precedence than top of stack
+                    {
+                        this.treeStack.Push(expression[i]); // push operator to stack
+                    }
+                    else if (factory.GetPrecedence(expression[i]) <= factory.GetPrecedence(this.treeStack.Peek())) // if operator has equal or lower precedence than top of stack
+                    {
+                        while (this.treeStack.Count > 0 && factory.GetPrecedence(expression[i]) <= factory.GetPrecedence(this.treeStack.Peek())) // while equal or lower than top of stack
+                        {
+                            this.postfixExp.Append(this.treeStack.Pop() + " "); // pop stack symbols and add to postfix expression
+                        }
+
+                        this.treeStack.Push(expression[i]); // push operator to stack
+                    }
+                }
+            }
+
+            while (this.treeStack.Count > 0) // while stack is not empty
+            {
+                if (this.treeStack.Peek() == '(') // if stack still contains parentheses
+                {
+                    throw new Exception("Invalid Parentheses!"); // throw exception if parentheses are still on stack
+                }
+
+                this.postfixExp.Append(this.treeStack.Pop() + " "); // add all operators on stack to postfix expression
+            }
         }
 
         /// <summary>

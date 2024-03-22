@@ -5,6 +5,7 @@
 namespace ExpressionTree
 {
     using System.Reflection;
+
     /// <summary>
     /// Factory class for creating operator nodes.
     /// </summary>
@@ -38,13 +39,13 @@ namespace ExpressionTree
             switch (op)
             {
                 case '+': // addition
-                    return new AdditionNode(op);
+                    return new AdditionNode();
                 case '-': // subtraction
-                    return new SubtractionNode(op);
+                    return new SubtractionNode();
                 case '*': // multiplication
-                    return new MultiplicationNode(op);
+                    return new MultiplicationNode();
                 case '/': // division
-                    return new DivisionNode(op);
+                    return new DivisionNode();
                 default:
                     throw new UnsupportedOperatorException("Invalid operator");
             }
@@ -73,10 +74,11 @@ namespace ExpressionTree
             if (this.IsOperator(c))
             {
                 int precedence = 0;
-                MethodInfo? methodInfo = this.operators[c].GetMethod("GetPrecedence");
-                if (methodInfo != null)
+                Type myType = this.operators[c];
+                PropertyInfo? propertyInfo = myType.GetProperty("Precedence");
+                if (propertyInfo != null)
                 {
-                    var temp = methodInfo.Invoke(null, null);
+                    var temp = propertyInfo.GetValue(null, null);
                     if (temp != null)
                     {
                         precedence = (int)temp;
@@ -112,7 +114,7 @@ namespace ExpressionTree
             if (this.IsOperator(c))
             {
                 OperatorNode.AssociativityVals associativity = 0;
-                MethodInfo? methodInfo = this.operators[c].GetMethod("GetAssociativity");
+                MethodInfo? methodInfo = this.operators[c].GetMethod("Associativity");
                 if (methodInfo != null)
                 {
                     var temp = methodInfo.Invoke(null, null);

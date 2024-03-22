@@ -16,8 +16,16 @@ namespace ExpressionTree.Tests
         [TestCase("11+22", ExpectedResult = "11 22 + ")] // addition expression
         [TestCase("22-11", ExpectedResult = "22 11 - ")] // subtraction expression
         [TestCase("3+3-3", ExpectedResult = "3 3 + 3 - ")] // addition and substraction mixed expression
+        [TestCase("3+3*3", ExpectedResult = "3 3 3 * + ")] // addition and multiplication mixed expression
         [TestCase("11*22", ExpectedResult = "11 22 * ")] // multiplication expression
+        [TestCase("11*22 + 5", ExpectedResult = "11 22 * 5 + ")] // multiplication and addditon mixed expression
         [TestCase("22/11", ExpectedResult = "22 11 / ")] // division expression
+        [TestCase("A+1", ExpectedResult = "A 1 + ")] // Variable addition expression
+        [TestCase("A+B", ExpectedResult = "A B + ")] // Pure Variable addition expression
+        [TestCase("A+B*C", ExpectedResult = "A B C * + ")] // Pure Variable addition and multiplication expression
+        [TestCase("A-B+C", ExpectedResult = "A B C + - ")] // Pure Variable subtraction and addition expression
+        [TestCase("A*B+C", ExpectedResult = "A B * C + ")] // Pure Variable multiplication and addition expression
+        [TestCase("A*(B+C)", ExpectedResult = "A B C + * ")] // Pure Variable multiplication and addition expression with parentheses
 
         /// <summary>
         /// Test postfix expression generation.

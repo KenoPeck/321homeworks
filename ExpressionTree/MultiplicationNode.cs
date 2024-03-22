@@ -9,18 +9,28 @@ namespace ExpressionTree
     /// </summary>
     internal class MultiplicationNode : OperatorNode
     {
-        private static AssociativityVals associativity = AssociativityVals.L;
-
-        private static int precedence = 3;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="MultiplicationNode"/> class.
         /// </summary>
         /// <param name="c">operator char value.</param>
-        public MultiplicationNode(char c)
-            : base(c)
+        public MultiplicationNode()
         {
         }
+
+        /// <summary>
+        /// gets operator symbol.
+        /// </summary>
+        public static char Operator => '*';
+
+        /// <summary>
+        /// gets operator precedence.
+        /// </summary>
+        public static int Precedence => 3;
+
+        /// <summary>
+        /// gets AssociativityVals Enum of operator.
+        /// </summary>
+        public static AssociativityVals Associativity => AssociativityVals.L;
 
         /// <summary>
         /// Evaluates the multiplication node.
