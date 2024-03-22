@@ -59,14 +59,29 @@ namespace ExpressionTree.Tests
             return exp.Evaluate();
         }
 
+        [Test]
         /// <summary>
         /// Test expressions with values totaling above maxvalue.
         /// </summary>
         /// <param name="expression">expression used in test.</param>
+        [TestCase("2%3")]
         [TestCase("2^3")]
         public void TestEvaluateUnsupportedOperator(string expression)
         {
             Assert.That(() => new ExpressionTree(expression), Throws.TypeOf<UnsupportedOperatorException>());
+        }
+
+        [Test]
+        /// <summary>
+        /// Test expressions with values totaling above maxvalue.
+        /// </summary>
+        /// <param name="expression">expression used in test.</param>
+        [TestCase("(()")]
+        [TestCase("3+(9+(5+44/(6+2))")]
+        [TestCase("5+(3/7))")]
+        public void TestUnequalParentheses(string expression)
+        {
+            Assert.That(() => new ExpressionTree(expression), Throws.TypeOf<System.Exception>());
         }
 
         [Test]
