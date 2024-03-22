@@ -139,7 +139,7 @@ namespace ExpressionTree
             string postfix = this.postfixExp.ToString();
             Stack<OperatorNode> nodeStack = new Stack<OperatorNode>();
 
-            for (int i = 0; i < postfix.Length; i++)
+            for (int i = 0; i < postfix.Length - 1; i++)
             {
                 if (char.IsWhiteSpace(postfix[i])) // skip whitespace
                 {
@@ -162,15 +162,15 @@ namespace ExpressionTree
                 else if (char.IsLetter(postfix[i])) // if character is beginning of a variable
                 {
                     StringBuilder elementName = new StringBuilder();
-                    while (i < postfix.Length && char.IsLetter(postfix[i]))
+                    while (i < postfix.Length - 1 && char.IsLetter(postfix[i]))
                     {
                         elementName.Append(postfix[i]);
                         i++;
                     }
 
-                    if (i < postfix.Length && char.IsNumber(postfix[i]))
+                    if (i < postfix.Length - 1 && char.IsNumber(postfix[i]))
                     {
-                        while (i < postfix.Length && char.IsNumber(postfix[i]))
+                        while (i < postfix.Length - 1 && char.IsNumber(postfix[i]))
                         {
                             elementName.Append(postfix[i]);
                             i++;
@@ -187,7 +187,7 @@ namespace ExpressionTree
                 else if (char.IsNumber(postfix[i])) // if character is beginning of a constant
                 {
                     StringBuilder constant = new StringBuilder();
-                    while (i < postfix.Length && (char.IsNumber(postfix[i]) || postfix[i] == '.'))
+                    while (i < postfix.Length - 1 && (char.IsNumber(postfix[i]) || postfix[i] == '.'))
                     {
                         constant.Append(postfix[i]);
                         i++;
