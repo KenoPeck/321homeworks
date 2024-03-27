@@ -1,18 +1,39 @@
-// <copyright file="ExpressionTreeTests.cs" company="PlaceholderCompany">
+// <copyright file="HW7_Tests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 // Tests have documentation above each test set which weren't being detected by stylecop
 #pragma warning disable SA1600 // Elements should be documented
 
-namespace ExpressionTree.Tests
+namespace HW7.Tests
 {
     using System.Globalization;
     using System.Linq.Expressions;
+    using ExpressionTree;
+    using SpreadsheetEngine;
 
     [TestFixture]
-    public class ExpressionTreeTests
+    public class HW7_Tests
     {
+        private Form1 testForm = new Form1();
+
+        [Test]
+        public void TestDisplayValue()
+        {
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1+5";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("10"));
+        }
+
+        [Test]
+        public void TestDisplayText()
+        {
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Text, Is.EqualTo("1"));
+        }
+
+        // ExpressionTree Tests ----------------------------------------------------------------------------------------------------
+
         [Test]
         [TestCase("11+22", ExpectedResult = "11 22 + ")] // addition expression
         [TestCase("22-11", ExpectedResult = "22 11 - ")] // subtraction expression
