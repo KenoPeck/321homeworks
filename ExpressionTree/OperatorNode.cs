@@ -36,11 +36,11 @@ namespace ExpressionTree
         /// <summary>
         /// Gets or sets the left child node.
         /// </summary>
-        protected Node? Left { get; set; }
+        protected internal Node? Left { get; set; }
 
         /// <summary>
         /// Gets or sets the right child node.
         /// </summary>
-        protected Node? Right { get; set; }
+        protected internal Node? Right { get; set; }
     }
 }

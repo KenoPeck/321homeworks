@@ -33,7 +33,6 @@ namespace HW7.Tests
         }
 
         // ExpressionTree Tests ----------------------------------------------------------------------------------------------------
-
         [Test]
         [TestCase("11+22", ExpectedResult = "11 22 + ")] // addition expression
         [TestCase("22-11", ExpectedResult = "22 11 - ")] // subtraction expression

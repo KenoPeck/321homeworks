@@ -10,7 +10,7 @@ namespace ExpressionTree
     /// <summary>
     /// Expression tree class for parsing and evaluating expressions.
     /// </summary>
-    public class ExpressionTree
+    public class ExpressionTree : OperatorNode
     {
         /// <summary>
         /// Operator node factory for creating operator nodes.
@@ -243,7 +243,7 @@ namespace ExpressionTree
         /// Evaluates expression to a double value.
         /// </summary>
         /// <returns> double value which expression evaluated to.</returns>
-        public double Evaluate()
+        public override double Evaluate()
         {
             if (this.root == null)
             {
