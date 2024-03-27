@@ -21,15 +21,16 @@ namespace HW7.Tests
         public void TestDisplayValue()
         {
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
-            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1+5";
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("10"));
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
         }
 
         [Test]
         public void TestDisplayText()
         {
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "1";
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Text, Is.EqualTo("1"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Text, Is.EqualTo("1"));
         }
 
         // ExpressionTree Tests ----------------------------------------------------------------------------------------------------

@@ -39,6 +39,25 @@ namespace HW7
         /// </summary>
         internal Spreadsheet Spreadsheet { get => this.spreadsheet; }
 
+        private void DataGridView1_CellBeginEdit(object sender, DataGridViewCellCancelEventArgs e)
+        {
+            int columnIndex = e.ColumnIndex;
+            int rowIndex = e.RowIndex;
+            this.dataGridView1.Rows[rowIndex].Cells[columnIndex].Value = this.spreadsheet.GetCell(rowIndex, columnIndex).Text;
+        }
+
+        private void DataGridView1_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            int columnIndex = e.ColumnIndex;
+            int rowIndex = e.RowIndex;
+            if (this.dataGridView1.Rows[rowIndex].Cells[columnIndex].Value != null)
+            {
+                #pragma warning disable CS8601 // Possible null reference assignment.
+                this.spreadsheet.GetCell(rowIndex, columnIndex).Text = this.dataGridView1.Rows[rowIndex].Cells[columnIndex].Value.ToString();
+                #pragma warning restore CS8601 // Possible null reference assignment.
+            }
+        }
+
         private void Spreadsheet_CellPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Value")

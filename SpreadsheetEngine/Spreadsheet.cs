@@ -105,15 +105,37 @@ namespace SpreadsheetEngine
                 string source = cell.Text.Substring(1);
                 int columnIndex = source[0] - 'A';
                 int rowIndex = int.Parse(source.Substring(1)) - 1;
-                cell.UpdateValue(this.cells[rowIndex, columnIndex].Text);
+                cell.UpdateValue(this.cells[rowIndex, columnIndex].Value);
+                this.UpdateDependents(cell);
             }
             else if (e.PropertyName == "Text")
             {
                 ConcreteCell cell = (ConcreteCell)sender;
                 cell.UpdateValue(cell.Text);
+                this.UpdateDependents(cell);
             }
 
             this.CellPropertyChanged(sender, e);
+        }
+
+        private void UpdateDependents(ConcreteCell cell)
+        {
+            StringBuilder sourceBuilder = new StringBuilder();
+            sourceBuilder.Append((char)(cell.ColumnIndex + 'A'));
+            sourceBuilder.Append(cell.RowIndex + 1);
+            string source = sourceBuilder.ToString();
+            for (int i = 0; i < this.rowCount; i++)
+            {
+                for (int j = 0; j < this.colCount; j++)
+                {
+                    if (this.cells[i, j].Text.Length > 1 && this.cells[i, j].Text.Substring(1) == source && this.cells[i, j] is ConcreteCell concreteCell)
+                    {
+                        concreteCell.UpdateValue(cell.Value);
+                        this.CellPropertyChanged(concreteCell, new PropertyChangedEventArgs("Value"));
+                        this.UpdateDependents(concreteCell);
+                    }
+                }
+            }
         }
 
         private class ConcreteCell : Cell

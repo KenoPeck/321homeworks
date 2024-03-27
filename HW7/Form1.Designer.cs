@@ -62,6 +62,8 @@ namespace HW7
             dataGridView1.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
             dataGridView1.Size = new Size(1122, 550);
             dataGridView1.TabIndex = 0;
+            dataGridView1.CellBeginEdit += DataGridView1_CellBeginEdit;
+            dataGridView1.CellEndEdit += DataGridView1_CellEndEdit;
             // 
             // button1
             // 

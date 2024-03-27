@@ -69,7 +69,7 @@ namespace SpreadsheetEngine
 
             set
             {
-                if (this.Text1 == value)
+                if (this.Text1 == value && value[0] != '=')
                 {
                     return;
                 }
