@@ -18,8 +18,13 @@ namespace HW7.Tests
         private Form1 testForm = new Form1();
 
         [Test]
-        public void TestDisplayValue()
+
+        /// <summary>
+        /// Test spreadsheet display of variable values.
+        /// </summary>
+        public void TestDisplayFormula()
         {
+            this.testForm = new Form1();
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
             this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
@@ -27,11 +32,32 @@ namespace HW7.Tests
         }
 
         [Test]
+
+        /// <summary>
+        /// Test spreadsheet display of plain text values.
+        /// </summary>
         public void TestDisplayText()
         {
+            this.testForm = new Form1();
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "1";
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Text, Is.EqualTo("1"));
         }
+
+        [Test]
+        [TestCase("1", "2", "=A1+B1", ExpectedResult = "3.0")] // addition expression
+        [TestCase("1", "2", "=A1/B1", ExpectedResult = "0.5")] // division expression
+        [TestCase("1", "2+2", "=A1/B1", ExpectedResult = "0.25")] // mixed expression
+        [TestCase("1", "9+A1", "=A1/B1", ExpectedResult = "0.1")] // mixed expression
+        [TestCase("0", "1", "=A1/B1", ExpectedResult = "0")] // divide by zero
+        public string TestDisplayArithmetic(string cell1, string cell2, string cell3)
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = cell1;
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = cell2;
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = cell3;
+            return this.testForm.Spreadsheet.GetCell(0, 2).Value;
+        }
+
 
         // ExpressionTree Tests ----------------------------------------------------------------------------------------------------
         [Test]

@@ -128,7 +128,7 @@ namespace SpreadsheetEngine
             {
                 for (int j = 0; j < this.colCount; j++)
                 {
-                    if (this.cells[i, j].Text.Length > 1 && this.cells[i, j].Text.Substring(1) == source && this.cells[i, j] is ConcreteCell concreteCell)
+                    if (this.cells[i, j].Text.Length > 1 && this.cells[i, j].Text.Substring(1) == source && this.cells[i, j] is ConcreteCell concreteCell && concreteCell != cell)
                     {
                         concreteCell.UpdateValue(cell.Value);
                         this.CellPropertyChanged(concreteCell, new PropertyChangedEventArgs("Value"));
