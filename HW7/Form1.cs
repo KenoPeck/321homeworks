@@ -50,10 +50,17 @@ namespace HW7
         {
             int columnIndex = e.ColumnIndex;
             int rowIndex = e.RowIndex;
-            if (this.dataGridView1.Rows[rowIndex].Cells[columnIndex].Value != null)
+            var input = this.dataGridView1.Rows[rowIndex].Cells[columnIndex].Value;
+            if (input != null)
             {
                 #pragma warning disable CS8601 // Possible null reference assignment.
-                this.spreadsheet.GetCell(rowIndex, columnIndex).Text = this.dataGridView1.Rows[rowIndex].Cells[columnIndex].Value.ToString();
+                this.spreadsheet.GetCell(rowIndex, columnIndex).Text = input.ToString();
+                #pragma warning restore CS8601 // Possible null reference assignment.
+            }
+            else
+            {
+                #pragma warning disable CS8601 // Possible null reference assignment.
+                this.spreadsheet.GetCell(rowIndex, columnIndex).Text = string.Empty;
                 #pragma warning restore CS8601 // Possible null reference assignment.
             }
         }
@@ -63,17 +70,7 @@ namespace HW7
             if (e.PropertyName == "Value")
             {
                 Cell cell = (Cell)sender;
-                string source = cell.Text.Substring(1);
-                int columnIndex = source[0] - 'A';
-                int rowIndex = int.Parse(source.Substring(1)) - 1;
-                this.dataGridView1.Rows[cell.RowIndex].Cells[cell.ColumnIndex].Value = this.spreadsheet.GetCell(rowIndex, columnIndex).Value;
-                for (int i = 0; i < 50; i++)
-                {
-                    for (int j = 0; j < 26; j++)
-                    {
-                        this.dataGridView1.Rows[i].Cells[j].Value = this.spreadsheet.GetCell(i, j).Value;
-                    }
-                }
+                this.dataGridView1.Rows[cell.RowIndex].Cells[cell.ColumnIndex].Value = cell.Value;
             }
             else if (e.PropertyName == "Text")
             {
@@ -96,30 +93,6 @@ namespace HW7
             for (int i = 0; i < 50; i++)
             {
                 this.dataGridView1.Rows[i].HeaderCell.Value = (i + 1).ToString();
-            }
-        }
-
-        #pragma warning disable SA1300 // Element should begin with upper-case letter
-        private void button1_Click(object sender, EventArgs e)
-        #pragma warning restore SA1300 // Element should begin with upper-case letter
-        {
-            Random random = new ();
-            int randCol, randRow;
-            for (int i = 0; i < 50; i++)
-            {
-                randCol = random.Next(0, 25);
-                randRow = random.Next(0, 49);
-                this.spreadsheet.GetCell(randRow, randCol).Text = "Hello World!";
-            }
-
-            for (int i = 0; i < 50; i++)
-            {
-                this.spreadsheet.GetCell(i, 1).Text = "This is cell B" + (i + 1);
-            }
-
-            for (int i = 0; i < 50; i++)
-            {
-                this.spreadsheet.GetCell(i, 0).Text = "=B" + (i + 1);
             }
         }
     }

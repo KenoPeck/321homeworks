@@ -12,6 +12,7 @@ namespace SpreadsheetEngine
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Text;
+    using ExpressionTree;
 
     /// <summary>
     /// Spreadsheet class for managing cells, inherits abstract cell class.
@@ -21,6 +22,9 @@ namespace SpreadsheetEngine
         private Cell[,] cells;
         private int rowCount;
         private int colCount;
+
+        private Dictionary<ConcreteCell, List<ConcreteCell>> dependencies = new Dictionary<ConcreteCell, List<ConcreteCell>>();
+        private Dictionary<string, double> values = new Dictionary<string, double>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
@@ -99,47 +103,150 @@ namespace SpreadsheetEngine
 
         private void Cell_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Value")
+            if (e.PropertyName == "Value") // If cell value is changed, update cell value and dependencies.
             {
                 ConcreteCell cell = (ConcreteCell)sender;
                 string source = cell.Text.Substring(1);
-                int columnIndex = source[0] - 'A';
-                int rowIndex = int.Parse(source.Substring(1)) - 1;
-                cell.UpdateValue(this.cells[rowIndex, columnIndex].Value);
-                this.UpdateDependents(cell);
+                cell.ExpressionTree = new ExpressionTree(source); // create expression tree with formula from cell.
+                cell.ExpressionTree.SetVariables(this.values); // set variables in expression tree to values in spreadsheet.
+                string result = string.Empty;
+                try
+                {
+                    result = cell.ExpressionTree.Evaluate().ToString(); // try to evaluate expression tree.
+                }
+                catch (ArgumentException)
+                {
+                    result = "Error"; // If a variable is not found in the dictionary, set result to error.
+                }
+
+                StringBuilder newCellBuilder = new StringBuilder();
+                newCellBuilder.Append((char)(cell.ColumnIndex + 'A'));
+                newCellBuilder.Append(cell.RowIndex + 1);
+                string newCell = newCellBuilder.ToString(); // create string representation of cell name.
+                if (double.TryParse(result, out double evaluatedResult))
+                {
+                    this.values[newCell] = evaluatedResult; // If result is a number, add it to the dictionary.
+                }
+                else
+                {
+                    this.values.Remove(newCell); // If result is not a number, remove it from the dictionary.
+                }
+
+                cell.UpdateValue(result);
+                foreach (ConcreteCell reference in this.dependencies.Keys)
+                {
+                    if (this.dependencies[reference].Contains(cell)) // If cell was dependent on another cell, unsubscribe it from the source cell changes.
+                    {
+                        this.dependencies[reference].Remove(cell);
+                        if (this.dependencies[reference].Count == 0) // If source cell has no more dependents, remove it from dictionary and unsubscribe updater.
+                        {
+                            this.dependencies.Remove(reference);
+                            #pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+                            reference.PropertyChanged -= this.SourceUpdateHandler;
+                            #pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+                        }
+                    }
+                }
+
+                int sourceColumnIndex = 0;
+                int sourceRowIndex = 0;
+                for (int i = 0; i < source.Length; i++) // Iterate through formula to find dependencies.
+                {
+                    if (char.IsLetter(source[i])) // If character is a letter, it is a column index/dependency.
+                    {
+                        StringBuilder rowBuilder = new StringBuilder();
+                        sourceColumnIndex = source[i] - 'A';
+                        i++;
+                        while (i < source.Length && char.IsDigit(source[i]))
+                        {
+                            rowBuilder.Append(source[i]);
+                            i++;
+                        }
+
+                        i--;
+                        sourceRowIndex = int.Parse(rowBuilder.ToString()) - 1;
+                        ConcreteCell sourceCell = (ConcreteCell)this.cells[sourceRowIndex, sourceColumnIndex];
+                        if (this.dependencies.ContainsKey(sourceCell)) // If source cell is already in dependencies, add cell to list.
+                        {
+                            this.dependencies[sourceCell].Add(cell);
+                        }
+                        else // If source cell is not in dependencies, add it to dictionary and add cell to list.
+                        {
+                            this.dependencies.Add(sourceCell, new List<ConcreteCell>());
+                            this.dependencies[sourceCell].Add(cell);
+                            #pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate
+                            sourceCell.PropertyChanged += this.SourceUpdateHandler;
+                            #pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate
+                        }
+                    }
+                    else
+                    {
+                        continue; // If character is not a letter, continue to next character.
+                    }
+                }
             }
-            else if (e.PropertyName == "Text")
+            else if (e.PropertyName == "Text") // If cell text is changed, update cell text and value fields.
             {
                 ConcreteCell cell = (ConcreteCell)sender;
+                StringBuilder sourceBuilder = new StringBuilder();
+                sourceBuilder.Append((char)(cell.ColumnIndex + 'A'));
+                sourceBuilder.Append(cell.RowIndex + 1);
+                string source = sourceBuilder.ToString();
+                if (double.TryParse(cell.Text, out double result))
+                {
+                    this.values[source] = result;
+                }
+                else
+                {
+                    this.values.Remove(source);
+                }
+
                 cell.UpdateValue(cell.Text);
-                this.UpdateDependents(cell);
+            }
+            else if (e.PropertyName == "Empty") // If cell is cleared, remove it from dictionary and update dependents.
+            {
+                ConcreteCell cell = (ConcreteCell)sender;
+                StringBuilder sourceBuilder = new StringBuilder();
+                sourceBuilder.Append((char)(cell.ColumnIndex + 'A'));
+                sourceBuilder.Append(cell.RowIndex + 1);
+                string source = sourceBuilder.ToString();
+                this.values.Remove(source);
+                cell.UpdateValue(string.Empty);
             }
 
             this.CellPropertyChanged(sender, e);
         }
 
-        private void UpdateDependents(ConcreteCell cell)
+        /// <summary>
+        /// Function for handling source cell updates.
+        /// </summary>
+        /// <param name="sender">Source cell which has been updated.</param>
+        /// <param name="e">Changed property name.</param>
+        private void SourceUpdateHandler(object sender, PropertyChangedEventArgs e) // Function for handling source cell updates.
         {
+            ConcreteCell sourceCell = (ConcreteCell)sender;
             StringBuilder sourceBuilder = new StringBuilder();
-            sourceBuilder.Append((char)(cell.ColumnIndex + 'A'));
-            sourceBuilder.Append(cell.RowIndex + 1);
+            sourceBuilder.Append((char)(sourceCell.ColumnIndex + 'A'));
+            sourceBuilder.Append(sourceCell.RowIndex + 1);
             string source = sourceBuilder.ToString();
-            for (int i = 0; i < this.rowCount; i++)
+            if (this.dependencies.ContainsKey(sourceCell)) // If source cell is in dependencies, update dependents.
             {
-                for (int j = 0; j < this.colCount; j++)
+                List<ConcreteCell> dependencies = new List<ConcreteCell>(this.dependencies[sourceCell]);
+                foreach (ConcreteCell dependentCell in dependencies)
                 {
-                    if (this.cells[i, j].Text.Length > 1 && this.cells[i, j].Text.Substring(1) == source && this.cells[i, j] is ConcreteCell concreteCell && concreteCell != cell)
-                    {
-                        concreteCell.UpdateValue(cell.Value);
-                        this.CellPropertyChanged(concreteCell, new PropertyChangedEventArgs("Value"));
-                        this.UpdateDependents(concreteCell);
-                    }
+                    dependentCell.Refresh(); // Refresh dependent cell to match new value of sourceCell.
                 }
+            }
+            else
+            {
+                throw new Exception("Source cell not found in dependencies dictionary.");
             }
         }
 
         private class ConcreteCell : Cell
         {
+            private ExpressionTree expressionTree;
+
             /// <summary>
             /// Initializes a new instance of the <see cref="ConcreteCell"/> class.
             /// </summary>
@@ -148,13 +255,16 @@ namespace SpreadsheetEngine
             public ConcreteCell(int row, int column)
                 : base(row, column)
             {
+                this.expressionTree = new ExpressionTree("0+0");
             }
+
+            internal ExpressionTree ExpressionTree { get => this.expressionTree; set => this.expressionTree = value; }
 
             /// <summary>
             /// Internal function allowing spreadsheet to update cell value.
             /// </summary>
             /// <param name="value"> new value for cell.</param>
-            internal void UpdateValue(string value)
+            internal void UpdateValue(string value) // Internal function allowing spreadsheet to update cell value.
             {
                 this.CellValue = value;
             }

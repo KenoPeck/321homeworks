@@ -9,6 +9,7 @@
 namespace SpreadsheetEngine
 {
     using System.ComponentModel;
+    using ExpressionTree;
 
     /// <summary>
     /// Abstract class for spreadsheet cell.
@@ -69,20 +70,27 @@ namespace SpreadsheetEngine
 
             set
             {
-                if (this.Text1 == value && value[0] != '=')
+                if (value == string.Empty) // If cell is empty, set value to empty string and flag empty propertychanged.
+                {
+                    this.Text1 = value;
+                    #pragma warning disable CS8602 // Dereference of a possibly null reference.
+                    this.PropertyChanged(this, new PropertyChangedEventArgs("Empty"));
+                    #pragma warning restore CS8602 // Dereference of a possibly null reference.
+                    return;
+                }
+                else if (this.Text1 == value && value[0] != '=') // If value is the same and not a formula, return.
                 {
                     return;
                 }
 
                 this.Text1 = value;
-                if (value[0] != '=')
+                if (value[0] != '=') // If value is not a formula, flag text propertychanged.
                 {
-                    this.CellValue = value;
                     #pragma warning disable CS8602 // Dereference of a possibly null reference.
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Text"));
                     #pragma warning restore CS8602 // Dereference of a possibly null reference.
                 }
-                else
+                else // If value is a formula, flag value propertychanged.
                 {
                     #pragma warning disable CS8602 // Dereference of a possibly null reference.
                     this.PropertyChanged(this, new PropertyChangedEventArgs("Value"));
@@ -143,5 +151,15 @@ namespace SpreadsheetEngine
         /// Gets or sets value of cell.
         /// </summary>
         protected string CellValue { get => this.cellValue; set => this.cellValue = value; }
+
+        /// <summary>
+        /// Triggers PropertyChanged event for cell value.
+        /// </summary>
+        protected internal void Refresh()
+        {
+            #pragma warning disable CS8602 // Dereference of a possibly null reference.
+            this.PropertyChanged(this, new PropertyChangedEventArgs("Value"));
+            #pragma warning restore CS8602 // Dereference of a possibly null reference.
+        }
     }
 }
