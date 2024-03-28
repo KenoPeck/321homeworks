@@ -18,6 +18,7 @@ namespace ExpressionTree
         {
             this.Name = name;
             this.Value = value;
+            this.Initialized = false;
         }
 
         /// <summary>
@@ -31,12 +32,24 @@ namespace ExpressionTree
         public double Value { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether the variable has been initialized.
+        /// </summary>
+        public bool Initialized { get; set; }
+
+        /// <summary>
         /// Evaluates self.
         /// </summary>
         /// <returns> double value of variable.</returns>
         public override double Evaluate()
         {
-            return this.Value;
+            if (this.Initialized)
+            {
+                return this.Value;
+            }
+            else
+            {
+                throw new System.ArgumentException("Variable not initialized");
+            }
         }
     }
 }

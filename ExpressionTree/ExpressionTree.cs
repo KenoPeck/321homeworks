@@ -5,12 +5,13 @@
 namespace ExpressionTree
 {
     using System.Collections.Generic;
+    using System.Reflection;
     using System.Text;
 
     /// <summary>
     /// Expression tree class for parsing and evaluating expressions.
     /// </summary>
-    public class ExpressionTree
+    public class ExpressionTree : OperatorNode
     {
         /// <summary>
         /// Operator node factory for creating operator nodes.
@@ -178,7 +179,8 @@ namespace ExpressionTree
                     }
 
                     i--;
-                    this.variables[elementName.ToString()] = 0;
+
+                    // this.variables[elementName.ToString()] = 0;
                     OperatorNode temp = factory.CreateOperatorNode('+');
                     temp.Left = new VariableNode(elementName.ToString(), 0);
                     temp.Right = new ConstantNode(0);
@@ -216,6 +218,20 @@ namespace ExpressionTree
         }
 
         /// <summary>
+        /// Sets all variables in dictionary to specified values.
+        /// </summary>
+        /// <param name="variables">Dictionary containing variables and values.</param>
+        public void SetVariables(Dictionary<string, double> variables)
+        {
+            this.variables = new Dictionary<string, double>(variables);
+
+            foreach (KeyValuePair<string, double> variable in this.variables)
+            {
+                this.SetVariable(variable.Key, variable.Value);
+            }
+        }
+
+        /// <summary>
         /// Gets generated postfix expression.
         /// </summary>
         /// <returns>postfix expression string.</returns>
@@ -243,7 +259,7 @@ namespace ExpressionTree
         /// Evaluates expression to a double value.
         /// </summary>
         /// <returns> double value which expression evaluated to.</returns>
-        public double Evaluate()
+        public override double Evaluate()
         {
             if (this.root == null)
             {
@@ -268,6 +284,7 @@ namespace ExpressionTree
                     if (((VariableNode)root.Left).Name == variableName)
                     {
                         ((VariableNode)root.Left).Value = variableValue;
+                        ((VariableNode)root.Left).Initialized = true;
                     }
                 }
                 else if (root.Left is OperatorNode)
@@ -280,6 +297,7 @@ namespace ExpressionTree
                     if (((VariableNode)root.Right).Name == variableName)
                     {
                         ((VariableNode)root.Right).Value = variableValue;
+                        ((VariableNode)root.Right).Initialized = true;
                     }
                 }
                 else if (root.Right is OperatorNode)

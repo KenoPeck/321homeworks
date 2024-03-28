@@ -5,6 +5,7 @@
 namespace ExpressionTree
 {
     using System.Reflection;
+    #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
 
     /// <summary>
     /// Factory class for creating operator nodes.
@@ -14,20 +15,17 @@ namespace ExpressionTree
         /// <summary>
         /// List of supported operators.
         /// </summary>
-        private Dictionary<char, Type> operators = new Dictionary<char, Type>
-        {
-            { '+', typeof(AdditionNode) },
-            { '-', typeof(SubtractionNode) },
-            { '*', typeof(MultiplicationNode) },
-            { '/', typeof(DivisionNode) },
-        };
+        private Dictionary<char, Type> operators = new Dictionary<char, Type>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OperatorNodeFactory"/> class.
         /// </summary>
         public OperatorNodeFactory()
         {
+            this.TraverseAvailableOperators((op, type) => this.operators.Add(op, type));
         }
+
+        private delegate void OnOperator(char op, Type type);
 
         /// <summary>
         /// Creates an operator node based on the operator char value.
@@ -36,19 +34,16 @@ namespace ExpressionTree
         /// <returns>new OperatorNode.</returns>
         public OperatorNode CreateOperatorNode(char op)
         {
-            switch (op)
+            if (this.operators.ContainsKey(op))
             {
-                case '+': // addition
-                    return new AdditionNode();
-                case '-': // subtraction
-                    return new SubtractionNode();
-                case '*': // multiplication
-                    return new MultiplicationNode();
-                case '/': // division
-                    return new DivisionNode();
-                default:
-                    throw new UnsupportedOperatorException("Invalid operator");
+                object operatorNodeObject = System.Activator.CreateInstance(this.operators[op]);
+                if (operatorNodeObject is OperatorNode)
+                {
+                    return (OperatorNode)operatorNodeObject;
+                }
             }
+
+            throw new Exception("Unhandled operator");
         }
 
         /// <summary>
@@ -139,5 +134,40 @@ namespace ExpressionTree
                 throw new UnsupportedOperatorException("Invalid operator");
             }
         }
+
+        private void TraverseAvailableOperators(OnOperator onOperator)
+        {
+            // get the type declaration of OperatorNode
+            Type operatorNodeType = typeof(OperatorNode);
+
+            // Iterate over all loaded assemblies:
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                // Get all types that inherit from our OperatorNode class using LINQ
+                IEnumerable<Type> operatorTypes =
+                assembly.GetTypes().Where(type => type.IsSubclassOf(operatorNodeType));
+                foreach (var type in operatorTypes)
+                {
+                    // for each subclass, retrieve the Operator property
+                    PropertyInfo operatorField = type.GetProperty("Operator");
+                    if (operatorField != null)
+                    {
+                        // Get the character of the Operator
+                        object value = operatorField.GetValue(type);
+                        if (value is char)
+                        {
+                            char operatorSymbol = (char)value;
+
+                            // And invoke the function passed as parameter
+                            // with the operator symbol and the operator class
+                            onOperator(operatorSymbol, type);
+                        }
+                    }
+                }
+            }
+        }
     }
+
+    #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+
 }

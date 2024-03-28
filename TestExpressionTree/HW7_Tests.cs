@@ -1,18 +1,97 @@
-// <copyright file="ExpressionTreeTests.cs" company="PlaceholderCompany">
+// <copyright file="HW7_Tests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 // Tests have documentation above each test set which weren't being detected by stylecop
 #pragma warning disable SA1600 // Elements should be documented
 
-namespace ExpressionTree.Tests
+namespace HW7.Tests
 {
     using System.Globalization;
     using System.Linq.Expressions;
+    using ExpressionTree;
+    using SpreadsheetEngine;
 
     [TestFixture]
-    public class ExpressionTreeTests
+    public class HW7_Tests
     {
+        private Form1 testForm = new Form1();
+
+        [Test]
+
+        /// <summary>
+        /// Test spreadsheet display of variable values.
+        /// </summary>
+        public void TestDisplayFormula()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
+        }
+
+        [Test]
+
+        /// <summary>
+        /// Test spreadsheet display of plain text values.
+        /// </summary>
+        public void TestDisplayText()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Text, Is.EqualTo("1"));
+        }
+
+        [Test]
+        [TestCase("1", "2", "=A1+B1", ExpectedResult = "3")] // addition expression
+        [TestCase("1", "2", "=A1/B1", ExpectedResult = "0.5")] // division expression
+        [TestCase("1", "=2+2", "=A1/B1", ExpectedResult = "0.25")] // mixed expression
+        [TestCase("1", "=9+A1", "=A1/B1", ExpectedResult = "0.1")] // mixed expression
+        [TestCase("0", "1", "=A1/B1", ExpectedResult = "0")] // dividing zero
+        [TestCase("1", "=A1", "=B1", ExpectedResult = "1")] // mixed expression
+        [TestCase("5", "=A1+5", "=B1/4", ExpectedResult = "2.5")] // mixed expression
+
+        /// <summary>
+        /// Test spreadsheet arithmetic & display.
+        /// </summary>
+        public string TestDisplayArithmetic(string cell1, string cell2, string cell3)
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = cell1;
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = cell2;
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = cell3;
+            return this.testForm.Spreadsheet.GetCell(0, 2).Value;
+        }
+
+        [Test]
+
+        public void TestEmptyCell()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = string.Empty;
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo(string.Empty));
+        }
+
+        [Test]
+
+        public void TestEmptyCellReference()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "10";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1/2";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1/2";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("5"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("2.5"));
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = string.Empty;
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("Error"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("Error"));
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "20";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("10"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
+        }
+
+        // ExpressionTree Tests ----------------------------------------------------------------------------------------------------
         [Test]
         [TestCase("11+22", ExpectedResult = "11 22 + ")] // addition expression
         [TestCase("22-11", ExpectedResult = "22 11 - ")] // subtraction expression
@@ -102,8 +181,10 @@ namespace ExpressionTree.Tests
         /// </summary>
         public void TestExpressionWithVariableValue()
         {
+            Dictionary<string, double> variables = new Dictionary<string, double>
+            { { "B1", 23.0 } };
             ExpressionTree expression = new ExpressionTree("B1+7");
-            expression.SetVariable("B1", 23.0);
+            expression.SetVariables(variables);
             Assert.That(expression.Evaluate(), Is.EqualTo(30.0));
         }
 
@@ -113,9 +194,10 @@ namespace ExpressionTree.Tests
         /// </summary>
         public void TestAdditionWith2VariableValues()
         {
+            Dictionary<string, double> variables = new Dictionary<string, double>
+            { { "A1", 9 }, { "B2", 1 } };
             ExpressionTree expression = new ExpressionTree("B2+A1+3");
-            expression.SetVariable("A1", 9);
-            expression.SetVariable("B2", 1);
+            expression.SetVariables(variables);
             Assert.That(expression.Evaluate(), Is.EqualTo(13));
         }
 
@@ -125,9 +207,10 @@ namespace ExpressionTree.Tests
         /// </summary>
         public void TestMixedWith2VariableValues()
         {
+            Dictionary<string, double> variables = new Dictionary<string, double>
+            { { "A1", 1 }, { "B2", 2 } };
             ExpressionTree expression = new ExpressionTree("(B2+5)*A1+3");
-            expression.SetVariable("A1", 1);
-            expression.SetVariable("B2", 2);
+            expression.SetVariables(variables);
             Assert.That(expression.Evaluate(), Is.EqualTo(10));
         }
 
@@ -137,10 +220,10 @@ namespace ExpressionTree.Tests
         /// </summary>
         public void TestExpressionWith3VariableValues()
         {
-            ExpressionTree expression = new ExpressionTree("(A1+B2)/CD55");
-            expression.SetVariable("A1", 11.5);
-            expression.SetVariable("B2", 9.5);
-            expression.SetVariable("CD55", 2);
+            Dictionary<string, double> variables = new Dictionary<string, double>
+            { { "A1", 11.5 }, { "B2", 9.5 }, { "C5", 2 } };
+            ExpressionTree expression = new ExpressionTree("(A1+B2)/C5");
+            expression.SetVariables(variables);
             Assert.That(expression.Evaluate(), Is.EqualTo(10.5));
         }
     }

@@ -34,13 +34,28 @@ namespace ExpressionTree
         }
 
         /// <summary>
+        /// gets operator symbol.
+        /// </summary>
+        public static char Operator => '+';
+
+        /// <summary>
+        /// gets operator precedence.
+        /// </summary>
+        public static int Precedence => 1;
+
+        /// <summary>
+        /// gets AssociativityVals Enum of operator.
+        /// </summary>
+        public static AssociativityVals Associativity => AssociativityVals.L;
+
+        /// <summary>
         /// Gets or sets the left child node.
         /// </summary>
-        public Node? Left { get; set; }
+        protected internal Node? Left { get; set; }
 
         /// <summary>
         /// Gets or sets the right child node.
         /// </summary>
-        public Node? Right { get; set; }
+        protected internal Node? Right { get; set; }
     }
 }
