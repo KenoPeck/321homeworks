@@ -107,16 +107,31 @@ namespace SpreadsheetEngine
             {
                 ConcreteCell cell = (ConcreteCell)sender;
                 string source = cell.Text.Substring(1);
-                cell.ExpressionTree = new ExpressionTree(source); // create expression tree with formula from cell.
-                cell.ExpressionTree.SetVariables(this.values); // set variables in expression tree to values in spreadsheet.
                 string result = string.Empty;
                 try
                 {
-                    result = cell.ExpressionTree.Evaluate().ToString(); // try to evaluate expression tree.
+                    cell.ExpressionTree = new ExpressionTree(source); // create expression tree with formula from cell.
+                    cell.ExpressionTree.SetVariables(this.values); // set variables in expression tree to values in spreadsheet.
+                    try
+                    {
+                        result = cell.ExpressionTree.Evaluate().ToString(); // try to evaluate expression tree.
+                    }
+                    catch (ArgumentException)
+                    {
+                        result = "RefError"; // If a variable is not found in the dictionary, set result to error.
+                    }
                 }
-                catch (ArgumentException)
+                catch (InvalidAssociativityException)
                 {
-                    result = "Error"; // If a variable is not found in the dictionary, set result to error.
+                    result = "AError"; // If operator associativity is invalid, set result to AError.
+                }
+                catch (InvalidPrecedenceException)
+                {
+                    result = "PError"; // If operator precedence is invalid, set result to PError.
+                }
+                catch (UnsupportedOperatorException)
+                {
+                    result = "OpError"; // If an unknown operator is used, set result to OpError.
                 }
 
                 StringBuilder newCellBuilder = new StringBuilder();
@@ -225,10 +240,6 @@ namespace SpreadsheetEngine
         private void SourceUpdateHandler(object sender, PropertyChangedEventArgs e) // Function for handling source cell updates.
         {
             ConcreteCell sourceCell = (ConcreteCell)sender;
-            StringBuilder sourceBuilder = new StringBuilder();
-            sourceBuilder.Append((char)(sourceCell.ColumnIndex + 'A'));
-            sourceBuilder.Append(sourceCell.RowIndex + 1);
-            string source = sourceBuilder.ToString();
             if (this.dependencies.ContainsKey(sourceCell)) // If source cell is in dependencies, update dependents.
             {
                 List<ConcreteCell> dependencies = new List<ConcreteCell>(this.dependencies[sourceCell]);
@@ -239,7 +250,7 @@ namespace SpreadsheetEngine
             }
             else
             {
-                throw new Exception("Source cell not found in dependencies dictionary.");
+                throw new InvalidDependencyException("Source cell not found in dependencies dictionary.");
             }
         }
 
