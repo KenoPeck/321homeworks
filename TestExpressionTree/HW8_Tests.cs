@@ -313,7 +313,7 @@ namespace HW8.Tests
         {
             this.testForm = new Form1();
             uint[] oldcolor = new uint[1];
-            oldcolor[1] = 0xFFFFFFFF;
+            oldcolor[0] = 0xFFFFFFFF;
             var command = new CellBGCEditCommand([this.testForm.Spreadsheet.GetCell(0, 0)], oldcolor, 0xFFFFFFF1);
             command.Execute();
             this.testForm.Spreadsheet.AddUndo(command);
@@ -326,8 +326,8 @@ namespace HW8.Tests
         public void TestRedoColorEdit()
         {
             this.testForm = new Form1();
-            uint[] oldcolor = new uint[1];
-            oldcolor[1] = 0xFFFFFFFF;
+            uint[] oldcolor = new uint[5];
+            oldcolor[0] = 0xFFFFFFFF;
             var command = new CellBGCEditCommand([this.testForm.Spreadsheet.GetCell(0, 0)], oldcolor, 0xFFFFFFF1);
             command.Execute();
             this.testForm.Spreadsheet.AddUndo(command);
@@ -342,7 +342,7 @@ namespace HW8.Tests
         {
             this.testForm = new Form1();
             uint[] oldcolor = new uint[1];
-            oldcolor[1] = 0xFFFFFFFF;
+            oldcolor[0] = 0xFFFFFFFF;
             var clrCommand = new CellBGCEditCommand([this.testForm.Spreadsheet.GetCell(0, 0)], oldcolor, 0xFFFFFFF1);
             clrCommand.Execute();
             this.testForm.Spreadsheet.AddUndo(clrCommand);
