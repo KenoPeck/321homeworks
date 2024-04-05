@@ -75,6 +75,15 @@ namespace HW7.Tests
 
         [Test]
 
+        public void TestUnsupportedOperator()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=2^3";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("OpError"));
+        }
+
+        [Test]
+
         public void TestEmptyCellReference()
         {
             this.testForm = new Form1();
@@ -84,8 +93,8 @@ namespace HW7.Tests
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("5"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("2.5"));
             this.testForm.Spreadsheet.GetCell(0, 0).Text = string.Empty;
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("Error"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("Error"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("RefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("RefError"));
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "20";
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("10"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
