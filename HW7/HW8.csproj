@@ -17,7 +17,7 @@
 
     <ItemGroup>
 	    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-		    <_Parameter1>HW7 Tests</_Parameter1>
+		    <_Parameter1>HW8 Tests</_Parameter1>
 	    </AssemblyAttribute>
     </ItemGroup>
 

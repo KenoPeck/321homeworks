@@ -6,7 +6,7 @@
 // <author>Cornelius Peck</author>
 //-----------------------------------------------------------------------
 
-namespace HW7
+namespace HW8
 {
     using System.ComponentModel;
     using SpreadsheetEngine;
@@ -50,34 +50,52 @@ namespace HW7
         {
             int columnIndex = e.ColumnIndex;
             int rowIndex = e.RowIndex;
-            var input = this.dataGridView1.Rows[rowIndex].Cells[columnIndex].Value;
+            var input = this.dataGridView1.Rows[rowIndex].Cells[columnIndex].Value; // get input from cell
+            var editedCell = this.spreadsheet.GetCell(rowIndex, columnIndex); // get cell to edit
             if (input != null)
             {
-#pragma warning disable CS8601 // Possible null reference assignment.
-                this.spreadsheet.GetCell(rowIndex, columnIndex).Text = input.ToString();
-#pragma warning restore CS8601 // Possible null reference assignment.
+                string? inputStr = input.ToString();
+                if (inputStr != null)
+                {
+                    var textCommand = new CellTextEditCommand(editedCell, editedCell.Text, inputStr); // create command from cell input
+                    this.spreadsheet.AddUndo(textCommand); // add command to undo stack
+                    textCommand.Execute(); // execute command
+                    this.undoToolStripMenuItem.Enabled = true; // enable undo button
+                    this.undoToolStripMenuItem.Text = "Undo Cell Text Edit"; // change undo button text
+                    this.redoToolStripMenuItem.Enabled = false; // disable redo button
+                    this.redoToolStripMenuItem.Text = "Redo Unavailable"; // change redo button text
+                }
             }
             else
             {
-#pragma warning disable CS8601 // Possible null reference assignment.
-                this.spreadsheet.GetCell(rowIndex, columnIndex).Text = string.Empty;
-#pragma warning restore CS8601 // Possible null reference assignment.
+                var textCommand = new CellTextEditCommand(editedCell, editedCell.Text, string.Empty); // create command from cell input
+                this.spreadsheet.AddUndo(textCommand); // add command to undo stack
+                textCommand.Execute(); // execute command
+                this.undoToolStripMenuItem.Enabled = true; // enable undo button
+                this.undoToolStripMenuItem.Text = "Undo Cell Text Edit"; // change undo button text
+                this.redoToolStripMenuItem.Enabled = false; // disable redo button
+                this.redoToolStripMenuItem.Text = "Redo Unavailable"; // change redo button text
             }
         }
 
         private void Spreadsheet_CellPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Value")
+            if (e.PropertyName == "Value") // If cell value changes, update datagridview cell value.
             {
                 Cell cell = (Cell)sender;
                 this.dataGridView1.Rows[cell.RowIndex].Cells[cell.ColumnIndex].Value = cell.Value;
             }
-            else if (e.PropertyName == "Text")
+            else if (e.PropertyName == "Text") // If cell text changes, update datagridview cell text.
             {
                 Cell cell = (Cell)sender;
                 this.dataGridView1.Rows[cell.RowIndex].Cells[cell.ColumnIndex].Value = cell.Text;
             }
-            else if (e.PropertyName == "BGColor")
+            else if (e.PropertyName == "Empty") // If cell text is empty string, update datagridview cell text to empty.
+            {
+                Cell cell = (Cell)sender;
+                this.dataGridView1.Rows[cell.RowIndex].Cells[cell.ColumnIndex].Value = string.Empty;
+            }
+            else if (e.PropertyName == "BGColor") // If cell background color changes, update datagridview cell background color.
             {
                 Cell cell = (Cell)sender;
                 this.dataGridView1.Rows[cell.RowIndex].Cells[cell.ColumnIndex].Style.BackColor = Color.FromArgb((int)cell.BGColor);
@@ -105,14 +123,67 @@ namespace HW7
         private void changeSelectedCellsBackgroundColorToolStripMenuItem_Click(object sender, EventArgs e)
 #pragma warning restore SA1300 // Element should begin with upper-case letter
         {
-            var selectedCells = this.dataGridView1.SelectedCells;
-            if (this.colorDialog1.ShowDialog() == DialogResult.OK)
+            var selectedCells = this.dataGridView1.SelectedCells; // get selected cells
+            if (this.colorDialog1.ShowDialog() == DialogResult.OK) // if color dialog result is OK
             {
+                uint newColor = (uint)this.colorDialog1.Color.ToArgb(); // get color from dialog
+                Cell[] cells = new Cell[selectedCells.Count]; // create cell array for cells to edit
+                uint[] oldColors = new uint[selectedCells.Count]; // create uint array for old colors
+                int i = 0;
                 foreach (DataGridViewCell cell in selectedCells)
                 {
-                    this.spreadsheet.GetCell(cell.RowIndex, cell.ColumnIndex).BGColor = (uint)this.colorDialog1.Color.ToArgb();
+                    cells[i] = this.spreadsheet.GetCell(cell.RowIndex, cell.ColumnIndex); // get cell from spreadsheet
+                    oldColors[i] = this.spreadsheet.GetCell(cell.RowIndex, cell.ColumnIndex).BGColor; // get old color
+                    i++;
                 }
+
+                var colorCommand = new CellBGCEditCommand(cells, oldColors, newColor); // create command from cell input
+                colorCommand.Execute(); // execute command
+                this.spreadsheet.AddUndo(colorCommand); // add command to undo stack
+                this.undoToolStripMenuItem.Enabled = true;
+                this.undoToolStripMenuItem.Text = "Undo Cell Background Color Edit";
+                this.redoToolStripMenuItem.Enabled = false;
+                this.redoToolStripMenuItem.Text = "Redo Unavailable";
             }
         }
+#pragma warning disable SA1300 // Element should begin with upper-case letter - winforms autogenerated code
+
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var (undoCommand, redoCommand) = this.spreadsheet.Undo(); // undo last command and get new undo and redo commands
+            if (undoCommand != null) // if there is an undo command
+            {
+                this.undoToolStripMenuItem.Text = "Undo Cell " + undoCommand.GetTitle(); // change undo button text
+                this.redoToolStripMenuItem.Enabled = true; // enable redo button
+                this.redoToolStripMenuItem.Text = "Redo Cell " + redoCommand.GetTitle(); // change redo button text
+            }
+            else // if there is no more undo commands
+            {
+                this.undoToolStripMenuItem.Enabled = false; // disable undo button
+                this.undoToolStripMenuItem.Text = "Undo Unavailable"; // change undo button text
+                this.redoToolStripMenuItem.Enabled = true; // enable redo button
+                this.redoToolStripMenuItem.Text = "Redo Cell " + redoCommand.GetTitle(); // change redo button text
+            }
+        }
+
+        private void redoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var (undoCommand, redoCommand) = this.spreadsheet.Redo(); // redo last command and get new undo and redo commands
+            if (redoCommand != null) // if there is a redo command
+            {
+                this.redoToolStripMenuItem.Text = "Redo Cell " + redoCommand.GetTitle(); // change redo button text
+                this.undoToolStripMenuItem.Enabled = true; // enable undo button
+                this.undoToolStripMenuItem.Text = "Undo Cell " + undoCommand.GetTitle(); // change undo button text
+            }
+            else // if there is no more redo commands
+            {
+                this.redoToolStripMenuItem.Enabled = false; // disable redo button
+                this.redoToolStripMenuItem.Text = "Redo Unavailable"; // change redo button text
+                this.undoToolStripMenuItem.Enabled = true; // enable undo button
+                this.undoToolStripMenuItem.Text = "Undo Cell " + undoCommand.GetTitle(); // change undo button text
+            }
+        }
+
+#pragma warning restore SA1300 // Element should begin with upper-case letter
     }
 }

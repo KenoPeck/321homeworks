@@ -139,10 +139,18 @@ namespace HW8.Tests
         public void TestUndo()
         {
             this.testForm = new Form1();
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
-            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
-            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = "10";
+            var command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), string.Empty, "5");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 1), string.Empty, "=A1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 2), string.Empty, "=B1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), "5", "10");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
             this.testForm.Spreadsheet.Undo();
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
         }
@@ -152,10 +160,18 @@ namespace HW8.Tests
         public void TestRedo()
         {
             this.testForm = new Form1();
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
-            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
-            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = "10";
+            var command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), string.Empty, "5");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 1), string.Empty, "=A1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 2), string.Empty, "=B1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), "5", "10");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
             this.testForm.Spreadsheet.Undo();
             this.testForm.Spreadsheet.Redo();
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("10"));
@@ -166,10 +182,18 @@ namespace HW8.Tests
         public void TestUndoWithEmpty()
         {
             this.testForm = new Form1();
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
-            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
-            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = string.Empty;
+            var command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), string.Empty, "5");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 1), string.Empty, "=A1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 2), string.Empty, "=B1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), "5", string.Empty);
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
             this.testForm.Spreadsheet.Undo();
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
         }
@@ -179,13 +203,21 @@ namespace HW8.Tests
         public void TestRedoWithEmpty()
         {
             this.testForm = new Form1();
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
-            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
-            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = string.Empty;
+            var command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), string.Empty, "5");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 1), string.Empty, "=A1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 2), string.Empty, "=B1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), "5", string.Empty);
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
             this.testForm.Spreadsheet.Undo();
             this.testForm.Spreadsheet.Redo();
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo(string.Empty));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("RefError"));
         }
 
         [Test]
@@ -193,12 +225,21 @@ namespace HW8.Tests
         public void TestUndoWithError()
         {
             this.testForm = new Form1();
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = "2^3";
-            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
-            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = "10";
+            var command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), string.Empty, "=2^3");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 1), string.Empty, "=A1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 2), string.Empty, "=B1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), this.testForm.Spreadsheet.GetCell(0, 0).Text, "5");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
             this.testForm.Spreadsheet.Undo();
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("OpError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("OpError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("RefError"));
         }
 
         [Test]
@@ -206,13 +247,109 @@ namespace HW8.Tests
         public void TestRedoWithError()
         {
             this.testForm = new Form1();
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = "2^3";
-            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
-            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
-            this.testForm.Spreadsheet.GetCell(0, 0).Text = "10";
+            var command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), string.Empty, "=2^3");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 1), string.Empty, "=A1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 2), string.Empty, "=B1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), this.testForm.Spreadsheet.GetCell(0, 0).Text, "5");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
             this.testForm.Spreadsheet.Undo();
             this.testForm.Spreadsheet.Redo();
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("10"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
+        }
+
+        [Test]
+
+        public void TestUndoWithArithmetic()
+        {
+            this.testForm = new Form1();
+            var command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), string.Empty, "=(5*3)/2");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 1), string.Empty, "=A1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 2), string.Empty, "=B1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), this.testForm.Spreadsheet.GetCell(0, 0).Text, "=2*(4+7)");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            this.testForm.Spreadsheet.Undo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("7.5"));
+        }
+
+        [Test]
+
+        public void TestRedoWithArithmetic()
+        {
+            this.testForm = new Form1();
+            var command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), string.Empty, "=(5*3)/2");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 1), string.Empty, "=A1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 2), string.Empty, "=B1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), this.testForm.Spreadsheet.GetCell(0, 0).Text, "=2*(4+7)");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            this.testForm.Spreadsheet.Undo();
+            this.testForm.Spreadsheet.Redo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("22"));
+        }
+
+        [Test]
+
+        public void TestUndoColorEdit()
+        {
+            this.testForm = new Form1();
+            var command = new CellBGCEditCommand([this.testForm.Spreadsheet.GetCell(0, 0)], [0xFFFFFFFF], 0xFFFFFFF1);
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            this.testForm.Spreadsheet.Undo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).BGColor, Is.EqualTo(0xFFFFFFFF));
+        }
+
+        [Test]
+
+        public void TestRedoColorEdit()
+        {
+            this.testForm = new Form1();
+            var command = new CellBGCEditCommand([this.testForm.Spreadsheet.GetCell(0, 0)], [0xFFFFFFFF], 0xFFFFFFF1);
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            this.testForm.Spreadsheet.Undo();
+            this.testForm.Spreadsheet.Redo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).BGColor, Is.EqualTo(0xFFFFFFF1));
+        }
+
+        [Test]
+
+        public void TestUndoRedoColorAndTextEdit()
+        {
+            this.testForm = new Form1();
+            var clrCommand = new CellBGCEditCommand([this.testForm.Spreadsheet.GetCell(0, 0)], [0xFFFFFFFF], 0xFFFFFFF1);
+            clrCommand.Execute();
+            this.testForm.Spreadsheet.AddUndo(clrCommand);
+            var txtcommand = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 0), string.Empty, "=(5*3)/2");
+            txtcommand.Execute();
+            this.testForm.Spreadsheet.AddUndo(txtcommand);
+            this.testForm.Spreadsheet.Undo();
+            this.testForm.Spreadsheet.Undo();
+            this.testForm.Spreadsheet.Redo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).BGColor, Is.EqualTo(0xFFFFFFF1));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo(string.Empty));
+            this.testForm.Spreadsheet.Redo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("7.5"));
         }
 
         // ExpressionTree Tests ----------------------------------------------------------------------------------------------------
@@ -284,7 +421,7 @@ namespace HW8.Tests
         [TestCase("5+(3/7))")]
         public void TestUnequalParentheses(string expression)
         {
-            Assert.That(() => new ExpressionTree(expression), Throws.TypeOf<System.Exception>());
+            Assert.That(() => new ExpressionTree(expression), Throws.TypeOf<InvalidExpressionException>());
         }
 
         [Test]

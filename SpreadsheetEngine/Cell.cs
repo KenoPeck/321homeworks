@@ -54,6 +54,7 @@ namespace SpreadsheetEngine
             this.ColumnIndex1 = column;
             this.Text1 = string.Empty;
             this.CellValue = this.Text1;
+            this.bgColor = 0xFFFFFFFF;
         }
 
         /// <summary>

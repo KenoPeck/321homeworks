@@ -8,7 +8,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
-namespace HW7
+namespace HW8
 {
     partial class Form1
     {
@@ -38,19 +38,15 @@ namespace HW7
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             dataGridView1 = new DataGridView();
             menuStrip1 = new MenuStrip();
             editToolStripMenuItem = new ToolStripMenuItem();
-            undoToolStripMenuItem = new ToolStripMenuItem();
-            cellTextChangeToolStripMenuItem = new ToolStripMenuItem();
-            cellBackgroundColorChangeToolStripMenuItem = new ToolStripMenuItem();
-            redoToolStripMenuItem = new ToolStripMenuItem();
-            cellTextChangeToolStripMenuItem1 = new ToolStripMenuItem();
-            cellBackgroundColorChangeToolStripMenuItem1 = new ToolStripMenuItem();
             cellToolStripMenuItem = new ToolStripMenuItem();
             changeSelectedCellsBackgroundColorToolStripMenuItem = new ToolStripMenuItem();
             colorDialog1 = new ColorDialog();
+            undoToolStripMenuItem = new ToolStripMenuItem();
+            redoToolStripMenuItem = new ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             menuStrip1.SuspendLayout();
             SuspendLayout();
@@ -60,14 +56,14 @@ namespace HW7
             dataGridView1.AllowUserToAddRows = false;
             dataGridView1.AllowUserToDeleteRows = false;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = SystemColors.Window;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F);
-            dataGridViewCellStyle1.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.False;
-            dataGridView1.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = SystemColors.Window;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F);
+            dataGridViewCellStyle3.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
+            dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
             dataGridView1.Location = new Point(12, 36);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
@@ -92,44 +88,10 @@ namespace HW7
             editToolStripMenuItem.Name = "editToolStripMenuItem";
             editToolStripMenuItem.Size = new Size(49, 24);
             editToolStripMenuItem.Text = "Edit";
-            // 
-            // undoToolStripMenuItem
-            // 
-            undoToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { cellTextChangeToolStripMenuItem, cellBackgroundColorChangeToolStripMenuItem });
-            undoToolStripMenuItem.Name = "undoToolStripMenuItem";
-            undoToolStripMenuItem.Size = new Size(128, 26);
-            undoToolStripMenuItem.Text = "Undo";
-            // 
-            // cellTextChangeToolStripMenuItem
-            // 
-            cellTextChangeToolStripMenuItem.Name = "cellTextChangeToolStripMenuItem";
-            cellTextChangeToolStripMenuItem.Size = new Size(294, 26);
-            cellTextChangeToolStripMenuItem.Text = "Cell Text Change";
-            // 
-            // cellBackgroundColorChangeToolStripMenuItem
-            // 
-            cellBackgroundColorChangeToolStripMenuItem.Name = "cellBackgroundColorChangeToolStripMenuItem";
-            cellBackgroundColorChangeToolStripMenuItem.Size = new Size(294, 26);
-            cellBackgroundColorChangeToolStripMenuItem.Text = "Cell Background Color Change";
-            // 
-            // redoToolStripMenuItem
-            // 
-            redoToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { cellTextChangeToolStripMenuItem1, cellBackgroundColorChangeToolStripMenuItem1 });
-            redoToolStripMenuItem.Name = "redoToolStripMenuItem";
-            redoToolStripMenuItem.Size = new Size(128, 26);
-            redoToolStripMenuItem.Text = "Redo";
-            // 
-            // cellTextChangeToolStripMenuItem1
-            // 
-            cellTextChangeToolStripMenuItem1.Name = "cellTextChangeToolStripMenuItem1";
-            cellTextChangeToolStripMenuItem1.Size = new Size(294, 26);
-            cellTextChangeToolStripMenuItem1.Text = "Cell Text Change";
-            // 
-            // cellBackgroundColorChangeToolStripMenuItem1
-            // 
-            cellBackgroundColorChangeToolStripMenuItem1.Name = "cellBackgroundColorChangeToolStripMenuItem1";
-            cellBackgroundColorChangeToolStripMenuItem1.Size = new Size(294, 26);
-            cellBackgroundColorChangeToolStripMenuItem1.Text = "Cell Background Color Change";
+            undoToolStripMenuItem.Enabled = false;
+            undoToolStripMenuItem.Text = "Undo Unavailable";
+            redoToolStripMenuItem.Enabled = false;
+            redoToolStripMenuItem.Text = "Redo Unavailable";
             // 
             // cellToolStripMenuItem
             // 
@@ -144,6 +106,20 @@ namespace HW7
             changeSelectedCellsBackgroundColorToolStripMenuItem.Size = new Size(361, 26);
             changeSelectedCellsBackgroundColorToolStripMenuItem.Text = "Change Selected Cells Background Color";
             changeSelectedCellsBackgroundColorToolStripMenuItem.Click += changeSelectedCellsBackgroundColorToolStripMenuItem_Click;
+            // 
+            // undoToolStripMenuItem
+            // 
+            undoToolStripMenuItem.Name = "undoToolStripMenuItem";
+            undoToolStripMenuItem.Size = new Size(224, 26);
+            undoToolStripMenuItem.Text = "Undo";
+            undoToolStripMenuItem.Click += undoToolStripMenuItem_Click;
+            // 
+            // redoToolStripMenuItem
+            // 
+            redoToolStripMenuItem.Name = "redoToolStripMenuItem";
+            redoToolStripMenuItem.Size = new Size(224, 26);
+            redoToolStripMenuItem.Text = "Redo";
+            redoToolStripMenuItem.Click += redoToolStripMenuItem_Click;
             // 
             // Form1
             // 
@@ -169,13 +145,9 @@ namespace HW7
         private ToolStripMenuItem editToolStripMenuItem;
         private ToolStripMenuItem cellToolStripMenuItem;
         private ToolStripMenuItem changeSelectedCellsBackgroundColorToolStripMenuItem;
-        private ToolStripMenuItem undoToolStripMenuItem;
-        private ToolStripMenuItem cellTextChangeToolStripMenuItem;
-        private ToolStripMenuItem cellBackgroundColorChangeToolStripMenuItem;
-        private ToolStripMenuItem redoToolStripMenuItem;
-        private ToolStripMenuItem cellTextChangeToolStripMenuItem1;
-        private ToolStripMenuItem cellBackgroundColorChangeToolStripMenuItem1;
         private ColorDialog colorDialog1;
+        private ToolStripMenuItem undoToolStripMenuItem;
+        private ToolStripMenuItem redoToolStripMenuItem;
 
         //public void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         //{
