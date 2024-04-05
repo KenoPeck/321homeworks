@@ -86,6 +86,16 @@ namespace SpreadsheetEngine
             return this.cells[row, col];
         }
 
+        public void Undo()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Redo()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Internal function for creating new concrete cell.
         /// </summary>

@@ -1,11 +1,11 @@
-// <copyright file="HW7_Tests.cs" company="PlaceholderCompany">
+// <copyright file="HW8_Tests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 // Tests have documentation above each test set which weren't being detected by stylecop
 #pragma warning disable SA1600 // Elements should be documented
 
-namespace HW7.Tests
+namespace HW8.Tests
 {
     using System.Globalization;
     using System.Linq.Expressions;
@@ -15,7 +15,7 @@ namespace HW7.Tests
     using SpreadsheetEngine;
 
     [TestFixture]
-    public class HW7_Tests
+    public class HW8_Tests
     {
         private Form1 testForm = new Form1();
 
@@ -132,6 +132,87 @@ namespace HW7.Tests
                     }
                 }
             }
+        }
+
+        [Test]
+
+        public void TestUndo()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "10";
+            this.testForm.Spreadsheet.Undo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
+        }
+
+        [Test]
+
+        public void TestRedo()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "10";
+            this.testForm.Spreadsheet.Undo();
+            this.testForm.Spreadsheet.Redo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("10"));
+        }
+
+        [Test]
+
+        public void TestUndoWithEmpty()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = string.Empty;
+            this.testForm.Spreadsheet.Undo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
+        }
+
+        [Test]
+
+        public void TestRedoWithEmpty()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = string.Empty;
+            this.testForm.Spreadsheet.Undo();
+            this.testForm.Spreadsheet.Redo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo(string.Empty));
+        }
+
+        [Test]
+
+        public void TestUndoWithError()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "2^3";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "10";
+            this.testForm.Spreadsheet.Undo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("OpError"));
+        }
+
+        [Test]
+
+        public void TestRedoWithError()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "2^3";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "10";
+            this.testForm.Spreadsheet.Undo();
+            this.testForm.Spreadsheet.Redo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("10"));
         }
 
         // ExpressionTree Tests ----------------------------------------------------------------------------------------------------
