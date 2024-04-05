@@ -17,6 +17,11 @@ namespace SpreadsheetEngine
     public abstract class Cell : INotifyPropertyChanged
     {
         /// <summary>
+        /// background color of cell.
+        /// </summary>
+        private uint bgColor;
+
+        /// <summary>
         /// index of cell column.
         /// </summary>
         private int columnIndex1;
@@ -49,6 +54,7 @@ namespace SpreadsheetEngine
             this.ColumnIndex1 = column;
             this.Text1 = string.Empty;
             this.CellValue = this.Text1;
+            this.bgColor = 0xFFFFFFFF;
         }
 
         /// <summary>
@@ -57,6 +63,25 @@ namespace SpreadsheetEngine
         #pragma warning disable SA1130
         public event PropertyChangedEventHandler? PropertyChanged = delegate { };
         #pragma warning restore SA1130
+
+        /// <summary>
+        /// Gets or sets cell background color.
+        /// </summary>
+        public uint BGColor
+        {
+            get
+            {
+                return this.bgColor;
+            }
+
+            set
+            {
+                this.bgColor = value;
+                #pragma warning disable CS8602 // Dereference of a possibly null reference.
+                this.PropertyChanged(this, new PropertyChangedEventArgs("BGColor"));
+                #pragma warning restore CS8602 // Dereference of a possibly null reference.
+            }
+        }
 
         /// <summary>
         /// Gets or sets text value of cell.

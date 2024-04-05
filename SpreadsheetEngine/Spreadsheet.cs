@@ -26,6 +26,9 @@ namespace SpreadsheetEngine
         private Dictionary<ConcreteCell, List<ConcreteCell>> dependencies = new Dictionary<ConcreteCell, List<ConcreteCell>>();
         private Dictionary<string, double> values = new Dictionary<string, double>();
 
+        private Stack<ICommand> undoStack = new ();
+        private Stack<ICommand> redoStack = new ();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Spreadsheet"/> class.
         /// </summary>
@@ -49,9 +52,9 @@ namespace SpreadsheetEngine
         /// <summary>
         /// Event handler for updating UI/spreadsheet when any cell property is changed.
         /// </summary>
-        #pragma warning disable SA1130
+#pragma warning disable SA1130
         public event PropertyChangedEventHandler CellPropertyChanged = delegate { };
-        #pragma warning restore SA1130
+#pragma warning restore SA1130
 
         /// <summary>
         /// Gets number of columns in spreadsheet.
@@ -87,6 +90,58 @@ namespace SpreadsheetEngine
         }
 
         /// <summary>
+        /// Function for adding command to undo stack.
+        /// </summary>
+        /// <param name="command">command to be added.</param>
+        public void AddUndo(ICommand command)
+        {
+            this.undoStack.Push(command); // Add command to undo stack.
+            this.redoStack.Clear(); // Clear redo stack.
+        }
+
+        /// <summary>
+        /// Function for undoing a command.
+        /// </summary>
+        /// <returns>Tuple containing (updated_undo_type, updated_redo_type).</returns>
+        /// <exception cref="InvalidOperationException">exception thrown if stack is empty when function called.</exception>
+        public (ICommand?, ICommand) Undo()
+        {
+            if (this.undoStack.Count > 0) // If undo stack is not empty
+            {
+                ICommand redoCommand = this.undoStack.Pop(); // Pop command from undo stack.
+                ICommand? undoCommand = this.undoStack.Count > 0 ? this.undoStack.Peek() : null; // Peek at next command in undo stack to see if another exists.
+                redoCommand.Undo(); // Undo command.
+                this.redoStack.Push(redoCommand); // Push command to redo stack.
+                return (undoCommand, redoCommand);
+            }
+            else
+            {
+                throw new InvalidOperationException("No commands to undo.");
+            }
+        }
+
+        /// <summary>
+        /// Function for redoing a command.
+        /// </summary>
+        /// <returns>Tuple containing (updated_redo_type, updated_undo_type).</returns>
+        /// <exception cref="InvalidOperationException">exception thrown if stack is empty when function called.</exception>
+        public (ICommand, ICommand?) Redo()
+        {
+            if (this.redoStack.Count > 0) // If redo stack is not empty
+            {
+                ICommand undoCommand = this.redoStack.Pop(); // Pop command from redo stack.
+                ICommand? redoCommand = this.redoStack.Count > 0 ? this.redoStack.Peek() : null; // Peek at next command in redo stack to see if another exists.
+                undoCommand.Execute(); // Execute command.
+                this.undoStack.Push(undoCommand); // Push command to undo stack.
+                return (undoCommand, redoCommand);
+            }
+            else
+            {
+                throw new InvalidOperationException("No commands to redo.");
+            }
+        }
+
+        /// <summary>
         /// Internal function for creating new concrete cell.
         /// </summary>
         /// <param name="row"> row index for new cell.</param>
@@ -95,9 +150,9 @@ namespace SpreadsheetEngine
         internal Cell CreateCell(int row, int col)
         {
             Cell newCell = new ConcreteCell(row, col);
-            #pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+#pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
             newCell.PropertyChanged += this.Cell_PropertyChanged;
-            #pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+#pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
             return newCell;
         }
 
@@ -107,16 +162,31 @@ namespace SpreadsheetEngine
             {
                 ConcreteCell cell = (ConcreteCell)sender;
                 string source = cell.Text.Substring(1);
-                cell.ExpressionTree = new ExpressionTree(source); // create expression tree with formula from cell.
-                cell.ExpressionTree.SetVariables(this.values); // set variables in expression tree to values in spreadsheet.
                 string result = string.Empty;
                 try
                 {
-                    result = cell.ExpressionTree.Evaluate().ToString(); // try to evaluate expression tree.
+                    cell.ExpressionTree = new ExpressionTree(source); // create expression tree with formula from cell.
+                    cell.ExpressionTree.SetVariables(this.values); // set variables in expression tree to values in spreadsheet.
+                    try
+                    {
+                        result = cell.ExpressionTree.Evaluate().ToString(); // try to evaluate expression tree.
+                    }
+                    catch (ArgumentException)
+                    {
+                        result = "RefError"; // If a variable is not found in the dictionary, set result to error.
+                    }
                 }
-                catch (ArgumentException)
+                catch (InvalidAssociativityException)
                 {
-                    result = "Error"; // If a variable is not found in the dictionary, set result to error.
+                    result = "AError"; // If operator associativity is invalid, set result to AError.
+                }
+                catch (InvalidPrecedenceException)
+                {
+                    result = "PError"; // If operator precedence is invalid, set result to PError.
+                }
+                catch (UnsupportedOperatorException)
+                {
+                    result = "OpError"; // If an unknown operator is used, set result to OpError.
                 }
 
                 StringBuilder newCellBuilder = new StringBuilder();
@@ -141,9 +211,9 @@ namespace SpreadsheetEngine
                         if (this.dependencies[reference].Count == 0) // If source cell has no more dependents, remove it from dictionary and unsubscribe updater.
                         {
                             this.dependencies.Remove(reference);
-                            #pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+#pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
                             reference.PropertyChanged -= this.SourceUpdateHandler;
-                            #pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+#pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
                         }
                     }
                 }
@@ -174,9 +244,9 @@ namespace SpreadsheetEngine
                         {
                             this.dependencies.Add(sourceCell, new List<ConcreteCell>());
                             this.dependencies[sourceCell].Add(cell);
-                            #pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate
+#pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate
                             sourceCell.PropertyChanged += this.SourceUpdateHandler;
-                            #pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate
+#pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate
                         }
                     }
                     else
@@ -212,6 +282,20 @@ namespace SpreadsheetEngine
                 string source = sourceBuilder.ToString();
                 this.values.Remove(source);
                 cell.UpdateValue(string.Empty);
+                foreach (ConcreteCell reference in this.dependencies.Keys)
+                {
+                    if (this.dependencies[reference].Contains(cell)) // If cell was dependent on another cell, unsubscribe it from the source cell changes.
+                    {
+                        this.dependencies[reference].Remove(cell);
+                        if (this.dependencies[reference].Count == 0) // If source cell has no more dependents, remove it from dictionary and unsubscribe updater.
+                        {
+                            this.dependencies.Remove(reference);
+#pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+                            reference.PropertyChanged -= this.SourceUpdateHandler;
+#pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+                        }
+                    }
+                }
             }
 
             this.CellPropertyChanged(sender, e);
@@ -224,22 +308,21 @@ namespace SpreadsheetEngine
         /// <param name="e">Changed property name.</param>
         private void SourceUpdateHandler(object sender, PropertyChangedEventArgs e) // Function for handling source cell updates.
         {
-            ConcreteCell sourceCell = (ConcreteCell)sender;
-            StringBuilder sourceBuilder = new StringBuilder();
-            sourceBuilder.Append((char)(sourceCell.ColumnIndex + 'A'));
-            sourceBuilder.Append(sourceCell.RowIndex + 1);
-            string source = sourceBuilder.ToString();
-            if (this.dependencies.ContainsKey(sourceCell)) // If source cell is in dependencies, update dependents.
+            if (e.PropertyName == "Value" || e.PropertyName == "Text" || e.PropertyName == "Empty")
             {
-                List<ConcreteCell> dependencies = new List<ConcreteCell>(this.dependencies[sourceCell]);
-                foreach (ConcreteCell dependentCell in dependencies)
+                ConcreteCell sourceCell = (ConcreteCell)sender;
+                if (this.dependencies.ContainsKey(sourceCell)) // If source cell is in dependencies, update dependents.
                 {
-                    dependentCell.Refresh(); // Refresh dependent cell to match new value of sourceCell.
+                    List<ConcreteCell> dependencies = new List<ConcreteCell>(this.dependencies[sourceCell]);
+                    foreach (ConcreteCell dependentCell in dependencies)
+                    {
+                        dependentCell.Refresh(); // Refresh dependent cell to match new value of sourceCell.
+                    }
                 }
-            }
-            else
-            {
-                throw new Exception("Source cell not found in dependencies dictionary.");
+                else
+                {
+                    throw new InvalidDependencyException("Source cell not found in dependencies dictionary.");
+                }
             }
         }
 

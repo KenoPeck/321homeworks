@@ -32,6 +32,7 @@ namespace ExpressionTree
         /// </summary>
         /// <param name="op">operator char value.</param>
         /// <returns>new OperatorNode.</returns>
+        /// <exception cref="UnsupportedOperatorException">unhandled operator.</exception>
         public OperatorNode CreateOperatorNode(char op)
         {
             if (this.operators.ContainsKey(op))
@@ -43,7 +44,7 @@ namespace ExpressionTree
                 }
             }
 
-            throw new Exception("Unhandled operator");
+            throw new UnsupportedOperatorException("Unhandled operator");
         }
 
         /// <summary>
@@ -61,8 +62,8 @@ namespace ExpressionTree
         /// </summary>
         /// <param name="c">operator character.</param>
         /// <returns>operator precedence int value.</returns>
-        /// <exception cref="Exception">operator has no precedence value.</exception>
-        /// <exception cref="Exception">operator has no get precedence method.</exception>
+        /// <exception cref="InvalidPrecedenceException">operator has no precedence value.</exception>
+        /// <exception cref="InvalidPrecedenceException">operator has no get precedence method.</exception>
         /// <exception cref="UnsupportedOperatorException">operator does not exist.</exception>
         public int GetPrecedence(char c)
         {
@@ -80,14 +81,14 @@ namespace ExpressionTree
                     }
                     else
                     {
-                        throw new Exception("Operator Has No Precedence Value");
+                        throw new InvalidPrecedenceException("Operator Has No Precedence Value");
                     }
 
                     return precedence;
                 }
                 else
                 {
-                    throw new Exception("Operator Has No Precedence Property");
+                    throw new InvalidPrecedenceException("Operator Has No Precedence Property");
                 }
             }
             else
@@ -101,8 +102,8 @@ namespace ExpressionTree
         /// </summary>
         /// <param name="c">operator character.</param>
         /// <returns>operator associativity enum value.</returns>
-        /// <exception cref="Exception">operator has no associativity value.</exception>
-        /// <exception cref="Exception">operator has no get associativity method.</exception>
+        /// <exception cref="InvalidAssociativityException">operator has no associativity value.</exception>
+        /// <exception cref="InvalidAssociativityException">operator has no get associativity method.</exception>
         /// <exception cref="UnsupportedOperatorException">operator does not exist.</exception>
         public OperatorNode.AssociativityVals GetAssociativity(char c)
         {
@@ -119,14 +120,14 @@ namespace ExpressionTree
                     }
                     else
                     {
-                        throw new Exception("Operator Has No Associativity Value");
+                        throw new InvalidAssociativityException("Operator Has No Associativity Value");
                     }
 
                     return associativity;
                 }
                 else
                 {
-                    throw new Exception("Operator Has No Associativity Property");
+                    throw new InvalidAssociativityException("Operator Has No Associativity Property");
                 }
             }
             else

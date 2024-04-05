@@ -1,10 +1,13 @@
+// <copyright file="Program.cs" company="PlaceholderCompany">
+// Copyright (c) PlaceholderCompany. All rights reserved.
+// </copyright>
 //-----------------------------------------------------------------------
 // Program.cs
 // contains implementation of UI class.
 // <author>Cornelius Peck</author>
 //-----------------------------------------------------------------------
 
-namespace HW7
+namespace HW8
 {
     /// <summary>
     /// Main Program class for spreadsheet application.

@@ -98,7 +98,7 @@ namespace ExpressionTree
                     }
                     else
                     {
-                        throw new Exception("Invalid Parentheses!"); // throw exception if parentheses are invalid
+                        throw new InvalidExpressionException("Invalid Parentheses!"); // throw exception if parentheses are invalid
                     }
                 }
                 else if (factory.IsOperator(expression[i])) // if character is an operator ----------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ namespace ExpressionTree
             {
                 if (this.treeStack.Peek() == '(') // if stack still contains parentheses
                 {
-                    throw new Exception("Invalid Parentheses!"); // throw exception if parentheses are still on stack
+                    throw new InvalidExpressionException("Invalid Parentheses!"); // throw exception if parentheses are still on stack
                 }
 
                 this.postfixExp.Append(this.treeStack.Pop() + " "); // add all operators on stack to postfix expression
@@ -157,7 +157,7 @@ namespace ExpressionTree
                     }
                     else
                     {
-                        throw new Exception("Invalid Expression!");
+                        throw new InvalidExpressionException("Invalid Expression: Operator Requires 2 Operands!");
                     }
                 }
                 else if (char.IsLetter(postfix[i])) // if character is beginning of a variable
@@ -203,13 +203,13 @@ namespace ExpressionTree
                 }
                 else // if character is not a valid character
                 {
-                    throw new Exception("Invalid Expression!");
+                    throw new InvalidExpressionException("Invalid Expression: Character Not Recognized!");
                 }
             }
 
             if (nodeStack.Count > 1 || nodeStack.Count == 0) // if stack is empty or contains more than one node
             {
-                throw new Exception("Invalid Expression!");
+                throw new InvalidExpressionException("Invalid Expression: Invalid Operator Count!");
             }
             else
             {
@@ -263,7 +263,7 @@ namespace ExpressionTree
         {
             if (this.root == null)
             {
-                throw new Exception("Cannot Evaluate Empty Tree!");
+                throw new InvalidExpressionException("Invalid Expression: Cannot Evaluate Empty Tree!");
             }
 
             return this.root.Evaluate();
