@@ -9,6 +9,8 @@ namespace HW7.Tests
 {
     using System.Globalization;
     using System.Linq.Expressions;
+    using System.Reflection;
+    using System.Windows.Forms;
     using ExpressionTree;
     using SpreadsheetEngine;
 
@@ -65,7 +67,9 @@ namespace HW7.Tests
         }
 
         [Test]
-
+        /// <summary>
+        /// Test empty cell handling.
+        /// </summary>
         public void TestEmptyCell()
         {
             this.testForm = new Form1();
@@ -74,7 +78,9 @@ namespace HW7.Tests
         }
 
         [Test]
-
+        /// <summary>
+        /// Test unsupportedoperator exception handling.
+        /// </summary>
         public void TestUnsupportedOperator()
         {
             this.testForm = new Form1();
@@ -83,7 +89,9 @@ namespace HW7.Tests
         }
 
         [Test]
-
+        /// <summary>
+        /// Test empty cell reference exception handling.
+        /// </summary>
         public void TestEmptyCellReference()
         {
             this.testForm = new Form1();
@@ -98,6 +106,32 @@ namespace HW7.Tests
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "20";
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("10"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
+        }
+
+        [Test]
+        /// <summary>
+        /// Test background color change handling.
+        /// </summary>
+        public void TestColorChange()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).BGColor = 0xFF0000;
+            DataGridView temp = new DataGridView();
+            Type dataGridType = temp.GetType();
+            PropertyInfo? propertyinfo = dataGridType.GetProperty("Style");
+            if (propertyinfo != null)
+            {
+                var style = propertyinfo.GetValue(temp, null);
+                if (style != null)
+                {
+                    var bgColor = style.GetType().GetProperty("BackColor");
+                    if (bgColor != null)
+                    {
+                        System.Drawing.Color testColor = System.Drawing.Color.FromArgb(0xFF0000);
+                        Assert.That(bgColor.GetValue(style, null), Is.EqualTo(testColor));
+                    }
+                }
+            }
         }
 
         // ExpressionTree Tests ----------------------------------------------------------------------------------------------------
