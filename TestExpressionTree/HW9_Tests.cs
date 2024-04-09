@@ -31,9 +31,10 @@ namespace HW9.Tests
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
             this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
             this.testForm.Spreadsheet.GetCell(0, 3).Text = "10";
-            this.testForm.Spreadsheet.GetCell(0,0).BGColor = 0xFF0000;
-            this.testForm.Spreadsheet.GetCell(0,1).BGColor = 0x00FF00;
-            this.testForm.Spreadsheet.SaveSpreadSheet("test");
+            this.testForm.Spreadsheet.GetCell(0, 0).BGColor = 0xFF0000;
+            this.testForm.Spreadsheet.GetCell(0, 1).BGColor = 0x00FF00;
+            FileStream file = File.Create("test.xml");
+            this.testForm.Spreadsheet.SaveSpreadSheet(file);
             Assert.That(File.Exists("test"), Is.True);
         }
 
@@ -48,9 +49,13 @@ namespace HW9.Tests
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
             this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
             this.testForm.Spreadsheet.GetCell(0, 3).Text = "10";
-            this.testForm.Spreadsheet.SaveSpreadSheet("test");
-            Assert.That(File.Exists("test"), Is.True);
-            this.testForm.Spreadsheet.LoadSpreadSheet("test");
+            FileStream saveFile = File.Create("test.xml");
+            this.testForm.Spreadsheet.SaveSpreadSheet(saveFile);
+            saveFile.Close();
+            Assert.That(File.Exists("test.xml"), Is.True);
+            FileStream loadFile = File.Open("test.xml", FileMode.Open);
+            this.testForm.Spreadsheet.LoadSpreadSheet(loadFile);
+            loadFile.Close();
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Text, Is.EqualTo("5"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Text, Is.EqualTo("=A1"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Text, Is.EqualTo("=B1"));
@@ -67,9 +72,13 @@ namespace HW9.Tests
             this.testForm = new Form1();
             this.testForm.Spreadsheet.GetCell(0, 0).BGColor = 0xFF0000;
             this.testForm.Spreadsheet.GetCell(0, 1).BGColor = 0x00FF00;
-            this.testForm.Spreadsheet.SaveSpreadSheet("test");
-            Assert.That(File.Exists("test"), Is.True);
-            this.testForm.Spreadsheet.LoadSpreadSheet("test");
+            FileStream saveFile = File.Create("test.xml");
+            this.testForm.Spreadsheet.SaveSpreadSheet(saveFile);
+            saveFile.Close();
+            Assert.That(File.Exists("test.xml"), Is.True);
+            FileStream loadFile = File.Open("test.xml", FileMode.Open);
+            this.testForm.Spreadsheet.LoadSpreadSheet(loadFile);
+            loadFile.Close();
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).BGColor, Is.EqualTo(0xFF0000));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).BGColor, Is.EqualTo(0x00FF00));
         }
@@ -87,9 +96,13 @@ namespace HW9.Tests
             this.testForm.Spreadsheet.GetCell(0, 3).Text = "10";
             this.testForm.Spreadsheet.GetCell(0,0).BGColor = 0xFF0000;
             this.testForm.Spreadsheet.GetCell(0,1).BGColor = 0x00FF00;
-            this.testForm.Spreadsheet.SaveSpreadSheet("test");
-            Assert.That(File.Exists("test"), Is.True);
-            this.testForm.Spreadsheet.LoadSpreadSheet("test");
+            FileStream saveFile = File.Create("test.xml");
+            this.testForm.Spreadsheet.SaveSpreadSheet(saveFile);
+            saveFile.Close();
+            Assert.That(File.Exists("test.xml"), Is.True);
+            FileStream loadFile = File.Open("test.xml", FileMode.Open);
+            this.testForm.Spreadsheet.LoadSpreadSheet(loadFile);
+            loadFile.Close();
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Text, Is.EqualTo("5"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Text, Is.EqualTo("=A1"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Text, Is.EqualTo("=B1"));
