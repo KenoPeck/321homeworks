@@ -6,7 +6,7 @@
 // <author>Cornelius Peck</author>
 //-----------------------------------------------------------------------
 
-namespace HW8
+namespace HW9
 {
     using System.ComponentModel;
     using SpreadsheetEngine;

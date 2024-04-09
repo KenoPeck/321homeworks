@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ExpressionTree\ExpressionTree.csproj" />
-    <ProjectReference Include="..\HW7\HW8.csproj" />
+    <ProjectReference Include="..\HW7\HW9.csproj" />
     <ProjectReference Include="..\SpreadsheetEngine\SpreadsheetEngine.csproj" />
   </ItemGroup>
 

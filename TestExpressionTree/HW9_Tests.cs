@@ -1,11 +1,11 @@
-// <copyright file="HW8_Tests.cs" company="PlaceholderCompany">
+// <copyright file="HW9_Tests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 // Tests have documentation above each test set which weren't being detected by stylecop
 #pragma warning disable SA1600 // Elements should be documented
 
-namespace HW8.Tests
+namespace HW9.Tests
 {
     using System.Globalization;
     using System.Linq.Expressions;
@@ -15,10 +15,91 @@ namespace HW8.Tests
     using SpreadsheetEngine;
 
     [TestFixture]
-    public class HW8_Tests
+    public class HW9_Tests
     {
         private Form1 testForm = new Form1();
 
+        // Loading/Saving Tests ----------------------------------------------------------------------------------------------------
+        [Test]
+        /// <summary>
+        /// Test saving text and color to an xml file.
+        /// </summary>
+        public void TestSaveTextAndColorSpreadSheet()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            this.testForm.Spreadsheet.GetCell(0, 3).Text = "10";
+            this.testForm.Spreadsheet.GetCell(0,0).BGColor = 0xFF0000;
+            this.testForm.Spreadsheet.GetCell(0,1).BGColor = 0x00FF00;
+            this.testForm.Spreadsheet.SaveSpreadSheet("test");
+            Assert.That(File.Exists("test"), Is.True);
+        }
+
+        [Test]
+        /// <summary>
+        /// Test saving & loading text to an xml file.
+        /// </summary>
+        public void TestLoadTextSpreadSheet()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            this.testForm.Spreadsheet.GetCell(0, 3).Text = "10";
+            this.testForm.Spreadsheet.SaveSpreadSheet("test");
+            Assert.That(File.Exists("test"), Is.True);
+            this.testForm.Spreadsheet.LoadSpreadSheet("test");
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Text, Is.EqualTo("5"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Text, Is.EqualTo("=A1"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Text, Is.EqualTo("=B1"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 3).Text, Is.EqualTo("10"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
+        }
+
+        [Test]
+        /// <summary>
+        /// Test saving cell colors to an xml file.
+        /// </summary>
+        public void TestLoadColorSpreadSheet()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).BGColor = 0xFF0000;
+            this.testForm.Spreadsheet.GetCell(0, 1).BGColor = 0x00FF00;
+            this.testForm.Spreadsheet.SaveSpreadSheet("test");
+            Assert.That(File.Exists("test"), Is.True);
+            this.testForm.Spreadsheet.LoadSpreadSheet("test");
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).BGColor, Is.EqualTo(0xFF0000));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).BGColor, Is.EqualTo(0x00FF00));
+        }
+
+        [Test]
+        /// <summary>
+        /// Test saving & loading text & color to an xml file.
+        /// </summary>
+        public void TestLoadTextAndColorSpreadSheet()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            this.testForm.Spreadsheet.GetCell(0, 3).Text = "10";
+            this.testForm.Spreadsheet.GetCell(0,0).BGColor = 0xFF0000;
+            this.testForm.Spreadsheet.GetCell(0,1).BGColor = 0x00FF00;
+            this.testForm.Spreadsheet.SaveSpreadSheet("test");
+            Assert.That(File.Exists("test"), Is.True);
+            this.testForm.Spreadsheet.LoadSpreadSheet("test");
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Text, Is.EqualTo("5"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Text, Is.EqualTo("=A1"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Text, Is.EqualTo("=B1"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 3).Text, Is.EqualTo("10"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0,0).BGColor, Is.EqualTo(0xFF0000));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0,1).BGColor, Is.EqualTo(0x00FF00));
+        }
+
+        // Spreadsheet Tests ----------------------------------------------------------------------------------------------------
         [Test]
 
         /// <summary>
@@ -134,6 +215,7 @@ namespace HW8.Tests
             }
         }
 
+        // Undo/redo tesing -------------------------------------------------------------------------------------------------------------------------
         [Test]
 
         public void TestUndo()

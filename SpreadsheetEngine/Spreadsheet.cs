@@ -79,6 +79,26 @@ namespace SpreadsheetEngine
         }
 
         /// <summary>
+        /// Function for saving spreadsheet to file.
+        /// </summary>
+        /// <param name="filename">filename spreadsheet is to be saved in.</param>
+        /// <exception cref="NotImplementedException">placeholder function for TDD.</exception>
+        public void SaveSpreadSheet(string filename)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Function for loading spreadsheet from a file.
+        /// </summary>
+        /// <param name="filename">filename spreadsheet is to be loaded from.</param>
+        /// <exception cref="NotImplementedException">placeholder function for TDD.</exception>
+        public void LoadSpreadSheet(string filename)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Gets spreadsheet cell at specified row and column.
         /// </summary>
         /// <param name="row"> row index of target cell.</param>
