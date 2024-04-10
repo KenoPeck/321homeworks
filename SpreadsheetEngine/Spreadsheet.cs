@@ -12,6 +12,7 @@ namespace SpreadsheetEngine
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Text;
+    using System.Xml;
     using ExpressionTree;
 
     /// <summary>
@@ -25,6 +26,7 @@ namespace SpreadsheetEngine
 
         private Dictionary<ConcreteCell, List<ConcreteCell>> dependencies = new Dictionary<ConcreteCell, List<ConcreteCell>>();
         private Dictionary<string, double> values = new Dictionary<string, double>();
+        private List<(int, int)> editedCells = new ();
 
         private Stack<ICommand> undoStack = new ();
         private Stack<ICommand> redoStack = new ();
@@ -79,13 +81,75 @@ namespace SpreadsheetEngine
         }
 
         /// <summary>
+        /// Function for resetting spreadsheet.
+        /// </summary>
+        public void WipeSpreadSheet()
+        {
+            for (int i = 0; i < this.rowCount; i++)
+            {
+                for (int j = 0; j < this.colCount; j++)
+                {
+#pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+                    this.cells[i, j].PropertyChanged -= this.Cell_PropertyChanged;
+#pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+                }
+            }
+
+            this.cells = new Cell[this.rowCount, this.colCount];
+            for (int i = 0; i < this.rowCount; i++)
+            {
+                for (int j = 0; j < this.colCount; j++)
+                {
+                    this.cells[i, j] = this.CreateCell(i, j);
+                }
+            }
+
+            foreach (ConcreteCell cell in this.dependencies.Keys)
+            {
+#pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+                cell.PropertyChanged -= this.SourceUpdateHandler;
+#pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate (possibly because of nullability attributes).
+            }
+
+            this.dependencies = new Dictionary<ConcreteCell, List<ConcreteCell>>();
+            this.values = new Dictionary<string, double>();
+            this.editedCells = new List<(int, int)>();
+            this.undoStack = new Stack<ICommand>();
+            this.redoStack = new Stack<ICommand>();
+        }
+
+        /// <summary>
         /// Function for saving spreadsheet to file.
         /// </summary>
         /// <param name="filestream">filestream spreadsheet is to be saved in.</param>
         /// <exception cref="NotImplementedException">placeholder function for TDD.</exception>
         public void SaveSpreadSheet(Stream filestream)
         {
+            var spreadSheetXmlDoc = new XmlDocument(); // Create new XML document.
+            var root = spreadSheetXmlDoc.CreateElement("Spreadsheet"); // Create root element.
+            spreadSheetXmlDoc.AppendChild(root); // Append root element to XML document.
+            foreach ((int, int) cellIndex in this.editedCells) // Iterate through edited cells and add them to XML document.
+            {
+                Cell theCell = this.cells[cellIndex.Item1, cellIndex.Item2]; // Get cell at index.
+                if (theCell.Text == string.Empty && theCell.BGColor == 0xFFFFFFFF) // If cell is empty, skip it.
+                {
+                    continue;
+                }
 
+                var cell = spreadSheetXmlDoc.CreateElement("Cell"); // Create cell element.
+                var index = spreadSheetXmlDoc.CreateAttribute("Index"); // Create index attribute.
+                index.Value = cellIndex.Item1.ToString() + "," + cellIndex.Item2.ToString(); // Set index attribute value.
+                var cellValue = spreadSheetXmlDoc.CreateElement("Text"); // Create text element.
+                cellValue.InnerText = theCell.Text; // Set text element value.
+                var cellBGC = spreadSheetXmlDoc.CreateElement("BGColor"); // Create BGColor element.
+                cellBGC.InnerText = theCell.BGColor.ToString(); // Set Background Color element value.
+                cell.AppendChild(cellValue); // Append text element to cell element.
+                cell.AppendChild(cellBGC); // Append BGColor element to cell element.
+                cell.Attributes.Append(index); // Append index attribute to cell element.
+                root.AppendChild(cell); // Append cell element to root element.
+            }
+
+            spreadSheetXmlDoc.Save(filestream);
         }
 
         /// <summary>
@@ -93,10 +157,23 @@ namespace SpreadsheetEngine
         /// </summary>
         /// <param name="filestream">filestream spreadsheet is to be loaded from.</param>
         /// <exception cref="NotImplementedException">placeholder function for TDD.</exception>
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
         public void LoadSpreadSheet(Stream filestream)
         {
-
+            var spreadSheetXmlDoc = new XmlDocument(); // Create new XML document.
+            spreadSheetXmlDoc.Load(filestream); // Load XML document from filestream.
+            XmlNodeList cells = spreadSheetXmlDoc.GetElementsByTagName("Cell"); // Get all cell elements from XML document.
+            foreach (XmlNode cell in cells) // Iterate through cell elements and update spreadsheet cells.
+            {
+                string[] index = cell.Attributes["Index"].Value.Split(','); // Split cell row/col indexes from index attribute.
+                int rowIndex = int.Parse(index[0]); // Get row index.
+                int colIndex = int.Parse(index[1]); // Get column index.
+                Cell theCell = this.cells[rowIndex, colIndex]; // Get cell at specified index.
+                theCell.Text = cell["Text"].InnerText; // Set cell text.
+                theCell.BGColor = uint.Parse(cell["BGColor"].InnerText); // Set cell Background Color.
+            }
         }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
         /// <summary>
         /// Gets spreadsheet cell at specified row and column.
@@ -178,18 +255,27 @@ namespace SpreadsheetEngine
 
         private void Cell_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            ConcreteCell changedCell = (ConcreteCell)sender;
+            StringBuilder nameBuilder = new StringBuilder();
+            nameBuilder.Append((char)(changedCell.ColumnIndex + 'A'));
+            nameBuilder.Append(changedCell.RowIndex + 1);
+            string cellName = nameBuilder.ToString();
+            if (!this.editedCells.Contains((changedCell.RowIndex, changedCell.ColumnIndex)))
+            {
+                this.editedCells.Add((changedCell.RowIndex, changedCell.ColumnIndex));
+            }
+
             if (e.PropertyName == "Value") // If cell value is changed, update cell value and dependencies.
             {
-                ConcreteCell cell = (ConcreteCell)sender;
-                string source = cell.Text.Substring(1);
+                string source = changedCell.Text.Substring(1);
                 string result = string.Empty;
                 try
                 {
-                    cell.ExpressionTree = new ExpressionTree(source); // create expression tree with formula from cell.
-                    cell.ExpressionTree.SetVariables(this.values); // set variables in expression tree to values in spreadsheet.
+                    changedCell.ExpressionTree = new ExpressionTree(source); // create expression tree with formula from cell.
+                    changedCell.ExpressionTree.SetVariables(this.values); // set variables in expression tree to values in spreadsheet.
                     try
                     {
-                        result = cell.ExpressionTree.Evaluate().ToString(); // try to evaluate expression tree.
+                        result = changedCell.ExpressionTree.Evaluate().ToString(); // try to evaluate expression tree.
                     }
                     catch (ArgumentException)
                     {
@@ -209,25 +295,21 @@ namespace SpreadsheetEngine
                     result = "OpError"; // If an unknown operator is used, set result to OpError.
                 }
 
-                StringBuilder newCellBuilder = new StringBuilder();
-                newCellBuilder.Append((char)(cell.ColumnIndex + 'A'));
-                newCellBuilder.Append(cell.RowIndex + 1);
-                string newCell = newCellBuilder.ToString(); // create string representation of cell name.
                 if (double.TryParse(result, out double evaluatedResult))
                 {
-                    this.values[newCell] = evaluatedResult; // If result is a number, add it to the dictionary.
+                    this.values[cellName] = evaluatedResult; // If result is a number, add it to the dictionary.
                 }
                 else
                 {
-                    this.values.Remove(newCell); // If result is not a number, remove it from the dictionary.
+                    this.values.Remove(cellName); // If result is not a number, remove it from the dictionary.
                 }
 
-                cell.UpdateValue(result);
+                changedCell.UpdateValue(result);
                 foreach (ConcreteCell reference in this.dependencies.Keys)
                 {
-                    if (this.dependencies[reference].Contains(cell)) // If cell was dependent on another cell, unsubscribe it from the source cell changes.
+                    if (this.dependencies[reference].Contains(changedCell)) // If cell was dependent on another cell, unsubscribe it from the source cell changes.
                     {
-                        this.dependencies[reference].Remove(cell);
+                        this.dependencies[reference].Remove(changedCell);
                         if (this.dependencies[reference].Count == 0) // If source cell has no more dependents, remove it from dictionary and unsubscribe updater.
                         {
                             this.dependencies.Remove(reference);
@@ -258,12 +340,12 @@ namespace SpreadsheetEngine
                         ConcreteCell sourceCell = (ConcreteCell)this.cells[sourceRowIndex, sourceColumnIndex];
                         if (this.dependencies.ContainsKey(sourceCell)) // If source cell is already in dependencies, add cell to list.
                         {
-                            this.dependencies[sourceCell].Add(cell);
+                            this.dependencies[sourceCell].Add(changedCell);
                         }
                         else // If source cell is not in dependencies, add it to dictionary and add cell to list.
                         {
                             this.dependencies.Add(sourceCell, new List<ConcreteCell>());
-                            this.dependencies[sourceCell].Add(cell);
+                            this.dependencies[sourceCell].Add(changedCell);
 #pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate
                             sourceCell.PropertyChanged += this.SourceUpdateHandler;
 #pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate
@@ -277,36 +359,26 @@ namespace SpreadsheetEngine
             }
             else if (e.PropertyName == "Text") // If cell text is changed, update cell text and value fields.
             {
-                ConcreteCell cell = (ConcreteCell)sender;
-                StringBuilder sourceBuilder = new StringBuilder();
-                sourceBuilder.Append((char)(cell.ColumnIndex + 'A'));
-                sourceBuilder.Append(cell.RowIndex + 1);
-                string source = sourceBuilder.ToString();
-                if (double.TryParse(cell.Text, out double result))
+                if (double.TryParse(changedCell.Text, out double result))
                 {
-                    this.values[source] = result;
+                    this.values[cellName] = result;
                 }
                 else
                 {
-                    this.values.Remove(source);
+                    this.values.Remove(cellName);
                 }
 
-                cell.UpdateValue(cell.Text);
+                changedCell.UpdateValue(changedCell.Text);
             }
             else if (e.PropertyName == "Empty") // If cell is cleared, remove it from dictionary and update dependents.
             {
-                ConcreteCell cell = (ConcreteCell)sender;
-                StringBuilder sourceBuilder = new StringBuilder();
-                sourceBuilder.Append((char)(cell.ColumnIndex + 'A'));
-                sourceBuilder.Append(cell.RowIndex + 1);
-                string source = sourceBuilder.ToString();
-                this.values.Remove(source);
-                cell.UpdateValue(string.Empty);
+                this.values.Remove(cellName);
+                changedCell.UpdateValue(string.Empty);
                 foreach (ConcreteCell reference in this.dependencies.Keys)
                 {
-                    if (this.dependencies[reference].Contains(cell)) // If cell was dependent on another cell, unsubscribe it from the source cell changes.
+                    if (this.dependencies[reference].Contains(changedCell)) // If cell was dependent on another cell, unsubscribe it from the source cell changes.
                     {
-                        this.dependencies[reference].Remove(cell);
+                        this.dependencies[reference].Remove(changedCell);
                         if (this.dependencies[reference].Count == 0) // If source cell has no more dependents, remove it from dictionary and unsubscribe updater.
                         {
                             this.dependencies.Remove(reference);

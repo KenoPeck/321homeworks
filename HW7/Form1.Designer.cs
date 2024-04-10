@@ -38,15 +38,20 @@ namespace HW9
         /// </summary>
         private void InitializeComponent()
         {
-            DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
+            DataGridViewCellStyle dataGridViewCellStyle1 = new DataGridViewCellStyle();
             dataGridView1 = new DataGridView();
             menuStrip1 = new MenuStrip();
             editToolStripMenuItem = new ToolStripMenuItem();
-            cellToolStripMenuItem = new ToolStripMenuItem();
-            changeSelectedCellsBackgroundColorToolStripMenuItem = new ToolStripMenuItem();
-            colorDialog1 = new ColorDialog();
             undoToolStripMenuItem = new ToolStripMenuItem();
             redoToolStripMenuItem = new ToolStripMenuItem();
+            cellToolStripMenuItem = new ToolStripMenuItem();
+            changeSelectedCellsBackgroundColorToolStripMenuItem = new ToolStripMenuItem();
+            fileToolStripMenuItem = new ToolStripMenuItem();
+            saveToFileToolStripMenuItem = new ToolStripMenuItem();
+            loadFromFileToolStripMenuItem = new ToolStripMenuItem();
+            colorDialog1 = new ColorDialog();
+            saveFileDialog1 = new SaveFileDialog();
+            openFileDialog1 = new OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             menuStrip1.SuspendLayout();
             SuspendLayout();
@@ -56,14 +61,14 @@ namespace HW9
             dataGridView1.AllowUserToAddRows = false;
             dataGridView1.AllowUserToDeleteRows = false;
             dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewCellStyle3.Alignment = DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = SystemColors.Window;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F);
-            dataGridViewCellStyle3.ForeColor = SystemColors.ControlText;
-            dataGridViewCellStyle3.SelectionBackColor = SystemColors.Highlight;
-            dataGridViewCellStyle3.SelectionForeColor = SystemColors.HighlightText;
-            dataGridViewCellStyle3.WrapMode = DataGridViewTriState.False;
-            dataGridView1.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = SystemColors.Window;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F);
+            dataGridViewCellStyle1.ForeColor = SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = DataGridViewTriState.False;
+            dataGridView1.DefaultCellStyle = dataGridViewCellStyle1;
             dataGridView1.Location = new Point(12, 36);
             dataGridView1.Name = "dataGridView1";
             dataGridView1.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
@@ -75,7 +80,7 @@ namespace HW9
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(20, 20);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, cellToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { editToolStripMenuItem, cellToolStripMenuItem, fileToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1146, 28);
@@ -88,10 +93,22 @@ namespace HW9
             editToolStripMenuItem.Name = "editToolStripMenuItem";
             editToolStripMenuItem.Size = new Size(49, 24);
             editToolStripMenuItem.Text = "Edit";
+            // 
+            // undoToolStripMenuItem
+            // 
             undoToolStripMenuItem.Enabled = false;
-            undoToolStripMenuItem.Text = "Undo Unavailable";
+            undoToolStripMenuItem.Name = "undoToolStripMenuItem";
+            undoToolStripMenuItem.Size = new Size(128, 26);
+            undoToolStripMenuItem.Text = "Undo";
+            undoToolStripMenuItem.Click += undoToolStripMenuItem_Click;
+            // 
+            // redoToolStripMenuItem
+            // 
             redoToolStripMenuItem.Enabled = false;
-            redoToolStripMenuItem.Text = "Redo Unavailable";
+            redoToolStripMenuItem.Name = "redoToolStripMenuItem";
+            redoToolStripMenuItem.Size = new Size(128, 26);
+            redoToolStripMenuItem.Text = "Redo";
+            redoToolStripMenuItem.Click += redoToolStripMenuItem_Click;
             // 
             // cellToolStripMenuItem
             // 
@@ -107,19 +124,37 @@ namespace HW9
             changeSelectedCellsBackgroundColorToolStripMenuItem.Text = "Change Selected Cells Background Color";
             changeSelectedCellsBackgroundColorToolStripMenuItem.Click += changeSelectedCellsBackgroundColorToolStripMenuItem_Click;
             // 
-            // undoToolStripMenuItem
+            // fileToolStripMenuItem
             // 
-            undoToolStripMenuItem.Name = "undoToolStripMenuItem";
-            undoToolStripMenuItem.Size = new Size(224, 26);
-            undoToolStripMenuItem.Text = "Undo";
-            undoToolStripMenuItem.Click += undoToolStripMenuItem_Click;
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { saveToFileToolStripMenuItem, loadFromFileToolStripMenuItem });
+            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            fileToolStripMenuItem.Size = new Size(46, 24);
+            fileToolStripMenuItem.Text = "File";
             // 
-            // redoToolStripMenuItem
+            // saveToFileToolStripMenuItem
             // 
-            redoToolStripMenuItem.Name = "redoToolStripMenuItem";
-            redoToolStripMenuItem.Size = new Size(224, 26);
-            redoToolStripMenuItem.Text = "Redo";
-            redoToolStripMenuItem.Click += redoToolStripMenuItem_Click;
+            saveToFileToolStripMenuItem.Name = "saveToFileToolStripMenuItem";
+            saveToFileToolStripMenuItem.Size = new Size(190, 26);
+            saveToFileToolStripMenuItem.Text = "Save To File";
+            saveToFileToolStripMenuItem.Click += saveToFileToolStripMenuItem_Click;
+            // 
+            // loadFromFileToolStripMenuItem
+            // 
+            loadFromFileToolStripMenuItem.Name = "loadFromFileToolStripMenuItem";
+            loadFromFileToolStripMenuItem.Size = new Size(190, 26);
+            loadFromFileToolStripMenuItem.Text = "Load From File";
+            loadFromFileToolStripMenuItem.Click += loadFromFileToolStripMenuItem_Click;
+            // 
+            // saveFileDialog1
+            // 
+            saveFileDialog1.OkRequiresInteraction = true;
+            saveFileDialog1.Title = "Save SpreadSheet To File";
+            saveFileDialog1.FileOk += saveFileDialog1_FileOk;
+            // 
+            // openFileDialog1
+            // 
+            openFileDialog1.FileName = "openFileDialog1";
+            openFileDialog1.FileOk += openFileDialog1_FileOk;
             // 
             // Form1
             // 
@@ -148,6 +183,11 @@ namespace HW9
         private ColorDialog colorDialog1;
         private ToolStripMenuItem undoToolStripMenuItem;
         private ToolStripMenuItem redoToolStripMenuItem;
+        private ToolStripMenuItem fileToolStripMenuItem;
+        private ToolStripMenuItem saveToFileToolStripMenuItem;
+        private ToolStripMenuItem loadFromFileToolStripMenuItem;
+        private SaveFileDialog saveFileDialog1;
+        private OpenFileDialog openFileDialog1;
 
         //public void DataGridView1_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         //{

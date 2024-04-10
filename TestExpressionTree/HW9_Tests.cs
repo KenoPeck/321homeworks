@@ -11,6 +11,7 @@ namespace HW9.Tests
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Windows.Forms;
+    using System.Xml;
     using ExpressionTree;
     using SpreadsheetEngine;
 
@@ -35,7 +36,7 @@ namespace HW9.Tests
             this.testForm.Spreadsheet.GetCell(0, 1).BGColor = 0x00FF00;
             FileStream file = File.Create("test.xml");
             this.testForm.Spreadsheet.SaveSpreadSheet(file);
-            Assert.That(File.Exists("test"), Is.True);
+            Assert.That(File.Exists("test.xml"), Is.True);
         }
 
         [Test]
@@ -94,8 +95,8 @@ namespace HW9.Tests
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
             this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
             this.testForm.Spreadsheet.GetCell(0, 3).Text = "10";
-            this.testForm.Spreadsheet.GetCell(0,0).BGColor = 0xFF0000;
-            this.testForm.Spreadsheet.GetCell(0,1).BGColor = 0x00FF00;
+            this.testForm.Spreadsheet.GetCell(0, 0).BGColor = 0xFF0000;
+            this.testForm.Spreadsheet.GetCell(0, 1).BGColor = 0x00FF00;
             FileStream saveFile = File.Create("test.xml");
             this.testForm.Spreadsheet.SaveSpreadSheet(saveFile);
             saveFile.Close();
@@ -108,8 +109,102 @@ namespace HW9.Tests
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Text, Is.EqualTo("=B1"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 3).Text, Is.EqualTo("10"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(0,0).BGColor, Is.EqualTo(0xFF0000));
-            Assert.That(this.testForm.Spreadsheet.GetCell(0,1).BGColor, Is.EqualTo(0x00FF00));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).BGColor, Is.EqualTo(0xFF0000));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).BGColor, Is.EqualTo(0x00FF00));
+        }
+
+        [Test]
+        /// <summary>
+        /// Test saving & loading an updated xml file with unrecognized attributes and elements.
+        /// </summary>
+        public void TestLoadUpdatedXML()
+        {
+            this.testForm = new Form1();
+            FileStream saveFile = File.Create("test.xml");
+            var testXMLDoc = new XmlDocument();
+            var root = testXMLDoc.CreateElement("Spreadsheet"); // Create root element.
+            testXMLDoc.AppendChild(root); // Append root element to xml document.
+            var cell = testXMLDoc.CreateElement("Cell"); // Create cell element.
+            var index = testXMLDoc.CreateAttribute("Index"); // Create index attribute.
+            index.Value = "0,0"; // Set index attribute value.
+            var testAttr = testXMLDoc.CreateAttribute("Test"); // Create unused test attribute to act like a future-added attribute.
+            testAttr.Value = "Test"; // Set test attribute value.
+            var cellValue = testXMLDoc.CreateElement("Text"); // Create text element.
+            cellValue.InnerText = "9"; // Set text element value.
+            var cellBGC = testXMLDoc.CreateElement("BGColor"); // Create BGColor element.
+            uint testColor = 0xFF0000;
+            cellBGC.InnerText = testColor.ToString(); // Set BGColor element value.
+            var testElement = testXMLDoc.CreateElement("Test"); // Create unused test element to act like a future-added element.
+
+            // setting elements in different order than normal
+            testElement.InnerText = "Test"; // Set test element value.
+            cell.AppendChild(cellValue); // Append text element to cell element.
+            cell.AppendChild(cellBGC); // Append BGColor element to cell element.
+            cell.AppendChild(testElement); // Append testing element to cell element.
+            cell.Attributes.Append(index); // Append index attribute to cell element.
+            cell.Attributes.Append(testAttr); // Append testing attribute to cell element.
+            root.AppendChild(cell); // Append cell element to root element.
+
+            cell = testXMLDoc.CreateElement("Cell"); // Create cell element.
+            index = testXMLDoc.CreateAttribute("Index"); // Create index attribute.
+            index.Value = "0,1"; // Set index attribute value.
+            testAttr = testXMLDoc.CreateAttribute("Test"); // Create test attribute.
+            testAttr.Value = "Test"; // Set test attribute value.
+            cellValue = testXMLDoc.CreateElement("Text"); // Create text element.
+            cellValue.InnerText = "=A1/2"; // Set text element value.
+            cellBGC = testXMLDoc.CreateElement("BGColor"); // Create BGColor element.
+            testColor = 0x00FF00;
+            cellBGC.InnerText = testColor.ToString(); // Set BGColor element value.
+            testElement = testXMLDoc.CreateElement("Test"); // Create test element.
+            testElement.InnerText = "Test"; // Set test element value.
+            cell.AppendChild(testElement); // Append test element to cell element.
+            cell.AppendChild(cellValue); // Append text element to cell element.
+            cell.AppendChild(cellBGC); // Append BGColor element to cell element.
+            cell.Attributes.Append(testAttr); // Append test attribute to cell element.
+            cell.Attributes.Append(index); // Append index attribute to cell element.
+            root.AppendChild(cell); // Append cell element to root element.
+
+            testXMLDoc.Save(saveFile); // Save xml document to file.
+            saveFile.Close(); // Close file stream.
+            Assert.That(File.Exists("test.xml"), Is.True);
+            FileStream loadFile = File.Open("test.xml", FileMode.Open);
+            this.testForm.Spreadsheet.LoadSpreadSheet(loadFile);
+            loadFile.Close();
+
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Text, Is.EqualTo("9"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Text, Is.EqualTo("=A1/2"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("4.5"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).BGColor, Is.EqualTo(0xFF0000));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).BGColor, Is.EqualTo(0x00FF00));
+        }
+
+        [Test]
+        /// <summary>
+        /// Test saving & loading an empty xml file.
+        /// </summary>
+        public void TestSaveLoadEmptySpreadSheet()
+        {
+            this.testForm = new Form1();
+            FileStream saveFile = File.Create("test.xml");
+            this.testForm.Spreadsheet.SaveSpreadSheet(saveFile);
+            saveFile.Close();
+            Assert.That(File.Exists("test.xml"), Is.True);
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
+            this.testForm.Spreadsheet.GetCell(0, 3).Text = "10";
+            this.testForm.Spreadsheet.GetCell(0, 0).BGColor = 0xFF0000;
+            this.testForm.Spreadsheet.GetCell(0, 1).BGColor = 0x00FF00;
+            this.testForm.Spreadsheet.WipeSpreadSheet();
+            FileStream loadFile = File.Open("test.xml", FileMode.Open);
+            this.testForm.Spreadsheet.LoadSpreadSheet(loadFile);
+            loadFile.Close();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Text, Is.EqualTo(string.Empty));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Text, Is.EqualTo(string.Empty));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Text, Is.EqualTo(string.Empty));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 3).Text, Is.EqualTo(string.Empty));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).BGColor, Is.EqualTo(0xFFFFFFFF));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).BGColor, Is.EqualTo(0xFFFFFFFF));
         }
 
         // Spreadsheet Tests ----------------------------------------------------------------------------------------------------
