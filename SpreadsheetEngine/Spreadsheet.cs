@@ -329,26 +329,48 @@ namespace SpreadsheetEngine
                         StringBuilder rowBuilder = new StringBuilder();
                         sourceColumnIndex = source[i] - 'A';
                         i++;
+                        int isCell = 0;
                         while (i < source.Length && char.IsDigit(source[i]))
                         {
+                            isCell = 1;
                             rowBuilder.Append(source[i]);
                             i++;
                         }
 
-                        i--;
-                        sourceRowIndex = int.Parse(rowBuilder.ToString()) - 1;
-                        ConcreteCell sourceCell = (ConcreteCell)this.cells[sourceRowIndex, sourceColumnIndex];
-                        if (this.dependencies.ContainsKey(sourceCell)) // If source cell is already in dependencies, add cell to list.
+                        if (i < source.Length && char.IsLetter(source[i]))
                         {
-                            this.dependencies[sourceCell].Add(changedCell);
+                            continue;
                         }
-                        else // If source cell is not in dependencies, add it to dictionary and add cell to list.
+
+                        if (isCell == 1)
                         {
-                            this.dependencies.Add(sourceCell, new List<ConcreteCell>());
-                            this.dependencies[sourceCell].Add(changedCell);
+                            sourceRowIndex = int.Parse(rowBuilder.ToString()) - 1;
+                            if (sourceRowIndex < 0 || sourceRowIndex >= this.rowCount || sourceColumnIndex < 0 || sourceColumnIndex >= this.colCount)
+                            {
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        }
+
+                        if (isCell == 1)
+                        {
+                            i--;
+                            ConcreteCell sourceCell = (ConcreteCell)this.cells[sourceRowIndex, sourceColumnIndex];
+                            if (this.dependencies.ContainsKey(sourceCell)) // If source cell is already in dependencies, add cell to list.
+                            {
+                                this.dependencies[sourceCell].Add(changedCell);
+                            }
+                            else // If source cell is not in dependencies, add it to dictionary and add cell to list.
+                            {
+                                this.dependencies.Add(sourceCell, new List<ConcreteCell>());
+                                this.dependencies[sourceCell].Add(changedCell);
 #pragma warning disable CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate
-                            sourceCell.PropertyChanged += this.SourceUpdateHandler;
+                                sourceCell.PropertyChanged += this.SourceUpdateHandler;
 #pragma warning restore CS8622 // Nullability of reference types in type of parameter doesn't match the target delegate
+                            }
                         }
                     }
                     else
