@@ -654,12 +654,52 @@ namespace SpreadsheetEngine
                         {
                             dependentCell.Refresh(); // Refresh dependent cell to match new value of sourceCell.
                         }
+                        else
+                        {
+                            this.CascadingErrorUpdate(dependentCell, sourceCell, "CircularRefError");
+                        }
                     }
                 }
                 else
                 {
                     throw new InvalidDependencyException("Source cell not found in dependencies dictionary.");
                 }
+            }
+        }
+
+        /// <summary>
+        /// updates all dependent nodes from startercell to endercell.
+        /// </summary>
+        /// <param name="starterCell">beginning cell of recursion.</param>
+        /// <param name="enderCell">ending cell of recursion.</param>
+        /// <param name="error">error message.</param>
+        private void CascadingErrorUpdate(ConcreteCell starterCell, ConcreteCell enderCell, string error)
+        {
+            if (starterCell != enderCell)
+            {
+                starterCell.UpdateValue(error);
+                this.CellPropertyChanged(starterCell, new PropertyChangedEventArgs("Value"));
+            }
+
+            if (this.dependencies.ContainsKey(starterCell))
+            {
+                foreach (ConcreteCell dependentCell in this.dependencies[starterCell])
+                {
+                    if (dependentCell != enderCell)
+                    {
+                        dependentCell.UpdateValue(error);
+                        this.CellPropertyChanged(dependentCell, new PropertyChangedEventArgs("Value"));
+                        this.CascadingErrorUpdate(dependentCell, enderCell, error);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+            }
+            else
+            {
+                return;
             }
         }
 
