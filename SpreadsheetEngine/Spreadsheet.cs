@@ -253,6 +253,103 @@ namespace SpreadsheetEngine
             return newCell;
         }
 
+        /// <summary>
+        /// Recursive function for checking circular references in spreadsheet.
+        /// </summary>
+        /// <param name="dependentCell">referencing cell.</param>
+        /// <param name="referenceCell">cell being referenced.</param>
+        /// <returns>True if circular reference is found, false o.w.</returns>
+        private bool CircularReferenceCheck(string dependentCell, string referenceCell, List<string> exploredCells)
+        {
+            if (dependentCell == referenceCell || exploredCells.Contains(referenceCell))
+            {
+                return true;
+            }
+            else
+            {
+                exploredCells.Add(referenceCell);
+                ConcreteCell reference = (ConcreteCell)this.cells[int.Parse(referenceCell.Substring(1)) - 1, referenceCell[0] - 'A'];
+                if (reference.Text == string.Empty)
+                {
+                    return false;
+                }
+                else if (reference.Text[0] != '=')
+                {
+                    return false;
+                }
+
+                string source = reference.Text.Substring(1);
+                char sourceColumn;
+                string sourceRow;
+                string sourceName;
+                int sourceColumnIndex = 0;
+                int sourceRowIndex = 0;
+
+                for (int i = 0; i < source.Length; i++) // Iterate through formula to check for circular references.
+                {
+                    if (char.IsLetter(source[i])) // If character is a letter, it is a column index/dependency.
+                    {
+                        StringBuilder rowBuilder = new StringBuilder();
+                        sourceColumn = source[i];
+                        i++;
+                        int isCell = 0;
+                        while (i < source.Length && char.IsDigit(source[i]))
+                        {
+                            isCell = 1;
+                            rowBuilder.Append(source[i]);
+                            i++;
+                        }
+
+                        if (i < source.Length && char.IsLetter(source[i]))
+                        {
+                            continue;
+                        }
+
+                        if (isCell == 1)
+                        {
+                            sourceRow = rowBuilder.ToString();
+                            sourceRowIndex = int.Parse(rowBuilder.ToString()) - 1;
+                            if (sourceRowIndex < 0 || sourceRowIndex >= this.rowCount || sourceColumn < 'A' || sourceColumnIndex > 'Z')
+                            {
+                                i--;
+                                continue;
+                            }
+
+                            sourceName = sourceColumn + sourceRow;
+                        }
+                        else
+                        {
+                            i--;
+                            continue;
+                        }
+
+                        if (isCell == 1)
+                        {
+                            i--;
+                            if (sourceName == referenceCell) // self referential
+                            {
+                                return false;
+                            }
+                            else if (sourceName == dependentCell)
+                            {
+                                return true;
+                            }
+                            else if (this.CircularReferenceCheck(dependentCell, sourceName, exploredCells))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        continue; // If character is not a letter, continue to next character.
+                    }
+                }
+            }
+
+            return false;
+        }
+
         private void Cell_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             ConcreteCell changedCell = (ConcreteCell)sender;
@@ -267,32 +364,142 @@ namespace SpreadsheetEngine
 
             if (e.PropertyName == "Value") // If cell value is changed, update cell value and dependencies.
             {
-                string source = changedCell.Text.Substring(1);
                 string result = string.Empty;
-                try
+                char sourceColumn;
+                string sourceRow;
+                string sourceName;
+                int sourceColumnIndex = 0;
+                int sourceRowIndex = 0;
+                int circReference = 0;
+                int selfReference = 0;
+                int emptyCell = 0;
+                int badReference = 0;
+                string source = string.Empty;
+                if (changedCell.Text == string.Empty)
                 {
-                    changedCell.ExpressionTree = new ExpressionTree(source); // create expression tree with formula from cell.
-                    changedCell.ExpressionTree.SetVariables(this.values); // set variables in expression tree to values in spreadsheet.
+                    emptyCell = 1;
+                }
+                else if (changedCell.Text.Length > 1 && changedCell.Text[0] == '=')
+                {
+                    source = changedCell.Text.Substring(1);
+                    for (int i = 0; i < source.Length; i++) // Iterate through formula to check for circular references.
+                    {
+                        if (char.IsLetter(source[i])) // If character is a letter, it is a column index/dependency.
+                        {
+                            StringBuilder rowBuilder = new StringBuilder();
+                            sourceColumn = source[i];
+                            sourceColumnIndex = source[i] - 'A';
+                            i++;
+                            int isCell = 0;
+                            while (i < source.Length && char.IsDigit(source[i]))
+                            {
+                                isCell = 1;
+                                rowBuilder.Append(source[i]);
+                                i++;
+                            }
+
+                            if (i < source.Length && char.IsLetter(source[i]))
+                            {
+                                badReference = 1;
+                                continue;
+                            }
+
+                            if (isCell == 1)
+                            {
+                                sourceRow = rowBuilder.ToString();
+                                sourceRowIndex = int.Parse(rowBuilder.ToString()) - 1;
+                                if (sourceRowIndex < 0 || sourceRowIndex >= this.rowCount || sourceColumn < 'A' || sourceColumnIndex > 'Z')
+                                {
+                                    i--;
+                                    badReference = 1;
+                                    continue;
+                                }
+
+                                sourceName = sourceColumn + sourceRow;
+                            }
+                            else
+                            {
+                                i--;
+                                continue;
+                            }
+
+                            if (isCell == 1)
+                            {
+                                i--;
+                                ConcreteCell sourceCell = (ConcreteCell)this.cells[sourceRowIndex, sourceColumnIndex];
+                                if (sourceCell == changedCell)
+                                {
+                                    selfReference = 1;
+                                }
+                                else if (this.CircularReferenceCheck(cellName, sourceName, new List<string>()))
+                                {
+                                    circReference = 1;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            continue; // If character is not a letter, continue to next character.
+                        }
+                    }
+                }
+                else
+                {
+                    if (changedCell.Text == "=")
+                    {
+                        source = string.Empty;
+                        emptyCell = 1;
+                    }
+                    else
+                    {
+                        source = changedCell.Text;
+                        result = source;
+                    }
+                }
+
+                if (badReference == 1)
+                {
+                    result = "BadRefError";
+                }
+                else if (selfReference == 1) // If cell references itself, set value to reference error.
+                {
+                    result = "SelfRefError";
+                }
+                else if (circReference == 1) // If circular reference is found, set value to "CircularRefError.
+                {
+                    result = "CircularRefError";
+                }
+                else if (emptyCell == 1)
+                {
+                    result = string.Empty;
+                }
+                else
+                {
                     try
                     {
-                        result = changedCell.ExpressionTree.Evaluate().ToString(); // try to evaluate expression tree.
+                        changedCell.ExpressionTree = new ExpressionTree(source); // create expression tree with formula from cell.
+                        changedCell.ExpressionTree.SetVariables(this.values); // set variables in expression tree to values in spreadsheet.
+                        try
+                        {
+                            result = changedCell.ExpressionTree.Evaluate().ToString(); // try to evaluate expression tree.
+                        }
+                        catch (ArgumentException)
+                        {
+                            result = "0"; // If a variable is not found in the dictionary, set result to 0.
+                        }
                     }
-                    catch (ArgumentException)
+                    catch (InvalidAssociativityException)
                     {
-                        result = "RefError"; // If a variable is not found in the dictionary, set result to error.
+                        result = "AError"; // If operator associativity is invalid, set result to AError.
                     }
-                }
-                catch (InvalidAssociativityException)
-                {
-                    result = "AError"; // If operator associativity is invalid, set result to AError.
-                }
-                catch (InvalidPrecedenceException)
-                {
-                    result = "PError"; // If operator precedence is invalid, set result to PError.
-                }
-                catch (UnsupportedOperatorException)
-                {
-                    result = "OpError"; // If an unknown operator is used, set result to OpError.
+                    catch (InvalidPrecedenceException)
+                    {
+                        result = "PError"; // If operator precedence is invalid, set result to PError.
+                    }
+                    catch (UnsupportedOperatorException)
+                    {
+                        result = "OpError"; // If an unknown operator is used, set result to OpError.
+                    }
                 }
 
                 if (double.TryParse(result, out double evaluatedResult))
@@ -305,6 +512,7 @@ namespace SpreadsheetEngine
                 }
 
                 changedCell.UpdateValue(result);
+
                 foreach (ConcreteCell reference in this.dependencies.Keys)
                 {
                     if (this.dependencies[reference].Contains(changedCell)) // If cell was dependent on another cell, unsubscribe it from the source cell changes.
@@ -320,8 +528,6 @@ namespace SpreadsheetEngine
                     }
                 }
 
-                int sourceColumnIndex = 0;
-                int sourceRowIndex = 0;
                 for (int i = 0; i < source.Length; i++) // Iterate through formula to find dependencies.
                 {
                     if (char.IsLetter(source[i])) // If character is a letter, it is a column index/dependency.
@@ -347,11 +553,13 @@ namespace SpreadsheetEngine
                             sourceRowIndex = int.Parse(rowBuilder.ToString()) - 1;
                             if (sourceRowIndex < 0 || sourceRowIndex >= this.rowCount || sourceColumnIndex < 0 || sourceColumnIndex >= this.colCount)
                             {
+                                i--;
                                 continue;
                             }
                         }
                         else
                         {
+                            i--;
                             continue;
                         }
 
@@ -359,7 +567,11 @@ namespace SpreadsheetEngine
                         {
                             i--;
                             ConcreteCell sourceCell = (ConcreteCell)this.cells[sourceRowIndex, sourceColumnIndex];
-                            if (this.dependencies.ContainsKey(sourceCell)) // If source cell is already in dependencies, add cell to list.
+                            if (sourceCell == changedCell)
+                            {
+                                continue;
+                            }
+                            else if (this.dependencies.ContainsKey(sourceCell)) // If source cell is already in dependencies, add cell to list.
                             {
                                 this.dependencies[sourceCell].Add(changedCell);
                             }
@@ -425,12 +637,23 @@ namespace SpreadsheetEngine
             if (e.PropertyName == "Value" || e.PropertyName == "Text" || e.PropertyName == "Empty")
             {
                 ConcreteCell sourceCell = (ConcreteCell)sender;
+                char sourceColumn = (char)(sourceCell.ColumnIndex + 'A');
+                string sourceRowIndex = (sourceCell.RowIndex + 1).ToString();
+                string sourceName = sourceColumn + sourceRowIndex;
                 if (this.dependencies.ContainsKey(sourceCell)) // If source cell is in dependencies, update dependents.
                 {
                     List<ConcreteCell> dependencies = new List<ConcreteCell>(this.dependencies[sourceCell]);
                     foreach (ConcreteCell dependentCell in dependencies)
                     {
-                        dependentCell.Refresh(); // Refresh dependent cell to match new value of sourceCell.
+                        char dependentCellColumn = (char)(dependentCell.ColumnIndex + 'A');
+                        string dependentCellRowIndex = (dependentCell.RowIndex + 1).ToString();
+                        string dependentName = dependentCellColumn + dependentCellRowIndex;
+                        bool check1 = this.CircularReferenceCheck(sourceName, dependentName, new List<string>());
+                        bool check2 = this.CircularReferenceCheck(dependentName, sourceName, new List<string>());
+                        if (!check1 || !check2)
+                        {
+                            dependentCell.Refresh(); // Refresh dependent cell to match new value of sourceCell.
+                        }
                     }
                 }
                 else

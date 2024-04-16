@@ -232,8 +232,8 @@ namespace HW10.Tests
             this.testForm = new Form1();
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "=A51";
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("RefError"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("RefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("BadRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("0"));
             this.testForm.Spreadsheet.GetCell(0, 3).Text = "5";
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "=D1";
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1+5";
@@ -251,8 +251,8 @@ namespace HW10.Tests
             this.testForm = new Form1();
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "=Ba/Zg";
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("RefError"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("RefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("BadRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("0"));
             this.testForm.Spreadsheet.GetCell(0, 3).Text = "5";
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "=D1";
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1+5";
@@ -271,7 +271,7 @@ namespace HW10.Tests
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "=A1";
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("SelfRefError"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("RefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("0"));
             this.testForm.Spreadsheet.GetCell(0, 3).Text = "5";
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "=D1";
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1+5";
@@ -291,9 +291,9 @@ namespace HW10.Tests
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=B2*3";
             this.testForm.Spreadsheet.GetCell(1, 1).Text = "=A2*4";
             this.testForm.Spreadsheet.GetCell(1, 0).Text = "=A1*5";
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("CircularRefError"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("CircularRefError"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("0"));
             Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("CircularRefError"));
             this.testForm.Spreadsheet.GetCell(0, 3).Text = "5";
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "=D1";
@@ -371,8 +371,8 @@ namespace HW10.Tests
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("5"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("2.5"));
             this.testForm.Spreadsheet.GetCell(0, 0).Text = string.Empty;
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("RefError"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("RefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("0"));
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "20";
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("10"));
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
@@ -488,7 +488,7 @@ namespace HW10.Tests
             this.testForm.Spreadsheet.AddUndo(command);
             this.testForm.Spreadsheet.Undo();
             this.testForm.Spreadsheet.Redo();
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("RefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("0"));
         }
 
         [Test]
@@ -510,7 +510,7 @@ namespace HW10.Tests
             this.testForm.Spreadsheet.AddUndo(command);
             this.testForm.Spreadsheet.Undo();
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("OpError"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("RefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("0"));
         }
 
         [Test]
