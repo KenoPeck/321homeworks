@@ -291,9 +291,9 @@ namespace HW10.Tests
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=B2*3";
             this.testForm.Spreadsheet.GetCell(1, 1).Text = "=A2*4";
             this.testForm.Spreadsheet.GetCell(1, 0).Text = "=A1*5";
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("0"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("0"));
-            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("CircularRefError"));
             Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("CircularRefError"));
             this.testForm.Spreadsheet.GetCell(0, 3).Text = "5";
             this.testForm.Spreadsheet.GetCell(0, 0).Text = "=D1";
@@ -301,6 +301,130 @@ namespace HW10.Tests
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("300"));
             Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("100"));
             Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("25"));
+        }
+
+        [Test]
+
+        /// <summary>
+        /// Test spreadsheet handling of circular-referencing cells when circular reference is removed with an empty cell.
+        /// </summary>
+        public void TestCircularReferenceErrorWithEmptyCell()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=B1*2";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=B2*3";
+            this.testForm.Spreadsheet.GetCell(1, 1).Text = "=A2*4";
+            this.testForm.Spreadsheet.GetCell(1, 0).Text = "=A1*5";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("CircularRefError"));
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=D1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("0"));
+        }
+
+        [Test]
+
+        /// <summary>
+        /// Test spreadsheet handling of circular-referencing cells when circular reference is removed with a self-referencing cell.
+        /// </summary>
+        public void TestCircularReferenceErrorWithSelfReference()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=B1*2";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=B2*3";
+            this.testForm.Spreadsheet.GetCell(1, 1).Text = "=A2*4";
+            this.testForm.Spreadsheet.GetCell(1, 0).Text = "=A1*5";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("CircularRefError"));
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=A1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("SelfRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("0"));
+        }
+
+        [Test]
+
+        /// <summary>
+        /// Test spreadsheet handling of circular-referencing cells when circular reference is removed with a bad referenced cell.
+        /// </summary>
+        public void TestCircularReferenceErrorWithBadReference()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=B1*2";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=B2*3";
+            this.testForm.Spreadsheet.GetCell(1, 1).Text = "=A2*4";
+            this.testForm.Spreadsheet.GetCell(1, 0).Text = "=A1*5";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("CircularRefError"));
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=Aa";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("BadRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("0"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("0"));
+        }
+
+        [Test]
+
+        /// <summary>
+        /// Test spreadsheet handling of circular-referencing cells when circular reference is referenced by a new cell.
+        /// </summary>
+        public void TestCircularReferenceErrorWithNewReference()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=B1*2";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=B2*3";
+            this.testForm.Spreadsheet.GetCell(1, 1).Text = "=A2*4";
+            this.testForm.Spreadsheet.GetCell(1, 0).Text = "=A1*5";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("CircularRefError"));
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "=A1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("CircularRefError"));
+        }
+
+        [Test]
+
+        /// <summary>
+        /// Test spreadsheet handling of circular-referencing cells when circular reference is referenced by a new cell then undone and redone.
+        /// </summary>
+        public void TestCircularReferenceErrorWithNewReferenceUndoRedo()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=B1*2";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=B2*3";
+            this.testForm.Spreadsheet.GetCell(1, 1).Text = "=A2*4";
+            this.testForm.Spreadsheet.GetCell(1, 0).Text = "=A1*5";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("CircularRefError"));
+            this.testForm.Spreadsheet.GetCell(0, 2).Text = "5";
+            var command = new CellTextEditCommand(this.testForm.Spreadsheet.GetCell(0, 2), "5", "=A1");
+            command.Execute();
+            this.testForm.Spreadsheet.AddUndo(command);
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("CircularRefError"));
+            this.testForm.Spreadsheet.Undo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
+            this.testForm.Spreadsheet.Redo();
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("CircularRefError"));
         }
 
         [Test]
