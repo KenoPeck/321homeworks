@@ -263,6 +263,49 @@ namespace HW10.Tests
         [Test]
 
         /// <summary>
+        /// Test spreadsheet handling of self-referencing cells.
+        /// </summary>
+        public void TestSelfReferenceError()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=A1";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("SelfRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("RefError"));
+            this.testForm.Spreadsheet.GetCell(0, 3).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=D1";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1+5";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("5"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("10"));
+        }
+
+        [Test]
+
+        /// <summary>
+        /// Test spreadsheet handling of circular-referencing cells.
+        /// </summary>
+        public void TestCircularReferenceError()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=B1*2";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=B2*3";
+            this.testForm.Spreadsheet.GetCell(1, 1).Text = "=A2*4";
+            this.testForm.Spreadsheet.GetCell(1, 0).Text = "=A1*5";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("CircularRefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("CircularRefError"));
+            this.testForm.Spreadsheet.GetCell(0, 3).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=D1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("5"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("300"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 1).Value, Is.EqualTo("100"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(1, 0).Value, Is.EqualTo("25"));
+        }
+
+        [Test]
+
+        /// <summary>
         /// Test spreadsheet display of plain text values.
         /// </summary>
         public void TestDisplayText()
