@@ -6,7 +6,7 @@
 // <author>Cornelius Peck</author>
 //-----------------------------------------------------------------------
 
-namespace HW9
+namespace HW10
 {
     using System.ComponentModel;
     using System.Windows.Forms;

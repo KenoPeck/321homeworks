@@ -1,11 +1,11 @@
-// <copyright file="HW9_Tests.cs" company="PlaceholderCompany">
+// <copyright file="HW10_Tests.cs" company="PlaceholderCompany">
 // Copyright (c) PlaceholderCompany. All rights reserved.
 // </copyright>
 
 // Tests have documentation above each test set which weren't being detected by stylecop
 #pragma warning disable SA1600 // Elements should be documented
 
-namespace HW9.Tests
+namespace HW10.Tests
 {
     using System.Globalization;
     using System.Linq.Expressions;
@@ -16,7 +16,7 @@ namespace HW9.Tests
     using SpreadsheetEngine;
 
     [TestFixture]
-    public class HW9_Tests
+    public class HW10_Tests
     {
         private Form1 testForm = new Form1();
 
@@ -220,6 +220,44 @@ namespace HW9.Tests
             this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
             this.testForm.Spreadsheet.GetCell(0, 2).Text = "=B1";
             Assert.That(this.testForm.Spreadsheet.GetCell(0, 2).Value, Is.EqualTo("5"));
+        }
+
+        [Test]
+
+        /// <summary>
+        /// Test spreadsheet handling of out of bounds cell references.
+        /// </summary>
+        public void TestOutOfBoundsError()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=A51";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("RefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("RefError"));
+            this.testForm.Spreadsheet.GetCell(0, 3).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=D1";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1+5";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("5"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("10"));
+        }
+
+        [Test]
+
+        /// <summary>
+        /// Test spreadsheet handling of invalid cell references.
+        /// </summary>
+        public void TestInvalidReferenceError()
+        {
+            this.testForm = new Form1();
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=Ba/Zg";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("RefError"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("RefError"));
+            this.testForm.Spreadsheet.GetCell(0, 3).Text = "5";
+            this.testForm.Spreadsheet.GetCell(0, 0).Text = "=D1";
+            this.testForm.Spreadsheet.GetCell(0, 1).Text = "=A1+5";
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 0).Value, Is.EqualTo("5"));
+            Assert.That(this.testForm.Spreadsheet.GetCell(0, 1).Value, Is.EqualTo("10"));
         }
 
         [Test]

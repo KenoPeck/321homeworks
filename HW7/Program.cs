@@ -7,7 +7,7 @@
 // <author>Cornelius Peck</author>
 //-----------------------------------------------------------------------
 
-namespace HW9
+namespace HW10
 {
     /// <summary>
     /// Main Program class for spreadsheet application.
